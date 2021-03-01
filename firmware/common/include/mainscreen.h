@@ -2,6 +2,8 @@
 
 #include "screen.h"
 
+extern volatile uint8_t ui8_battery_soc_used[100];
+
 extern Screen mainScreen1, mainScreen2, bootScreen;
 extern Screen *screens[];
 extern Field

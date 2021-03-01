@@ -1,0 +1,83 @@
+Color LCD 860C display for TSDZ2 Open Source Firmware v20.1C
+
+Assistance mode available
+	Power assist
+	Torque assist
+	Cadence assist
+	eMTB assist
+	Hybrid assist
+The choice of assistance mode is in the main screen.
+At level 0, ON/OFF button to view the current mode, UP/DOWN button to change, ON/OFF button to confirm.
+
+Display Menus (new items)
+  SOC
+	Manual reset
+
+  Motor
+	Max motor power
+	Motor acceleration
+
+  Torque sensor
+	Torque adc step
+	Torque adc offset
+	Torque adc max
+	Weight on pedal
+	Torque adc on weight
+	Default weight
+
+  Assist levels
+	Power assist
+		Level 1
+		Level x
+	Torque assist
+		Level 1
+		Level x
+	Cadence assist
+		Level 1
+		Level x
+	eMTB assist
+		Level 1
+		Level x
+	Assistance values for all modes from 1 to 254, for eMTB from 1 to 20.
+
+  Walk assist
+	Cruise feature
+
+  Startup boost
+	Boost torque factor
+	Boost cadence step
+
+  Street mode
+	Cruise enable
+
+  Various
+	Lights configuration
+	Assist with error
+
+  Display
+	Config shortcut key
+
+  Technical (view only)
+	ADC torque delta
+	ADC torque boost
+	ADC torque step calc
+
+
+Error code
+E01 MOTOR NOT INIT
+E02 ERROR_TORQUE_SENSOR
+E03 ERROR_CADENCE_SENSOR
+E04 ERROR_MOTOR_BLOCKED
+E07 ERROR_FATAL (Comms)
+E08 ERROR_SPEED_SENSOR
+
+
+Changed files 860C
+configscreen.c
+eeprom.c
+mainscreen.c
+state.c
+configscreen.h
+eeprom.h
+state.h
+

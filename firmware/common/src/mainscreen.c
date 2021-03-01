@@ -29,9 +29,22 @@
 #include "peer_manager.h"
 #endif
 
+// TSDZ2 20.1
+#define WALK_ASSIST_THRESHOLD_SPEED_X10			70  // 70 -> 7.0 km/h
+#define CRUISE_THRESHOLD_SPEED_X10				90  // 90 -> 9.0 km/h
+static uint8_t ui8_set_riding_mode = 0; // 0=disabled, 1=enabled
+static uint8_t ui8_display_riding_mode_timeout = 60;
+volatile uint8_t ui8_battery_soc_used[100] = { 1, 1, 2, 3, 4, 5, 6, 8, 10, 12, 13, 15, 17, 19, 21, 23, 25, 26, 28,
+	29, 31, 33, 34, 36, 38, 39, 41, 42, 44, 46, 47, 49, 51, 52, 53, 54, 55, 57, 58, 59, 61, 62, 63, 65, 66,	67,
+	69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 85, 86, 87, 87, 88, 88, 89, 89, 90, 90,
+	91,	91, 91, 92, 92, 92, 93, 93, 93, 94, 94, 94, 95, 95, 95, 96, 96, 96, 97, 97, 97, 98, 98, 98, 99, 99, 99 };
+// table tested with Panasonic NCR18650GA, voltage reset Wh = 4.15 x num.cells, voltage cut-off = 2.90 x num.cells
+	
+	
 // only used on SW102, to count timeout to override the wheel speed value with assist level value
 static uint16_t m_assist_level_change_timeout = 0;
 
+// common
 uint8_t ui8_m_wheel_speed_integer;
 uint8_t ui8_m_wheel_speed_decimal;
 
@@ -64,6 +77,8 @@ void showNextScreen();
 static bool renderWarning(FieldLayout *layout);
 void DisplayResetToDefaults(void);
 void TripMemoriesReset(void);
+void BatterySOCReset(void);
+void SetDefaultWeight(void);
 void DisplayResetBluetoothPeers(void);
 void onSetConfigurationBatteryTotalWh(uint32_t v);
 void batteryTotalWh(void);
@@ -141,18 +156,18 @@ Field *customizables[] = {
     &tripBAvgSpeedField, // 9
     &wheelSpeedField, // 10
     &cadenceField, // 11
-		&humanPowerField, // 12
-		&batteryPowerField, // 13
+	&humanPowerField, // 12
+	&batteryPowerField, // 13
     &batteryVoltageField, // 14
     &batteryCurrentField, // 15
     &motorCurrentField, // 16
     &batterySOCField, // 17
-		&motorTempField, // 18
+	&motorTempField, // 18
     &motorErpsField, // 19
-		&pwmDutyField, // 20
-		&motorFOCField, // 21
-		&batteryPowerUsageField, // 22
-		NULL
+	&pwmDutyField, // 20
+	&motorFOCField, // 21
+	&batteryPowerUsageField, // 22
+	NULL
 };
 
 // We currently don't have any graphs in the SW102, so leave them here until then
@@ -287,9 +302,9 @@ static void bootScreenOnPreUpdate() {
     case MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK:
     case MOTOR_INIT_READY:
     case MOTOR_INIT_SIMULATING:
-      if (buttons_get_onoff_state() == 0) {
-        buttons_clear_all_events();
-        showNextScreen();
+      if (buttons_get_onoff_state() == 0) {	
+		buttons_clear_all_events();
+		showNextScreen();
       } else {
         if ((g_motor_init_state == MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK) ||
             (g_motor_init_state == MOTOR_INIT_READY)) {
@@ -390,8 +405,8 @@ Screen bootScreen = {
 // Allow common operations (like walk assist and headlights) button presses to work on any page
 bool anyscreen_onpress(buttons_events_t events) {
   if ((events & DOWN_LONG_CLICK) && ui_vars.ui8_walk_assist_feature_enabled) {
-    ui_vars.ui8_walk_assist = 1;
-    return true;
+      ui_vars.ui8_walk_assist = 1;
+      return true;
   }
 
   // long up to turn on headlights
@@ -434,9 +449,9 @@ static bool onPressAlternateField(buttons_events_t events) {
     case 3:
       if (
         (
-          ui_vars.ui8_street_mode_function_enabled
+          (ui_vars.ui8_street_mode_function_enabled
           && ui_vars.ui8_street_mode_enabled
-          && ui_vars.ui8_street_mode_throttle_enabled
+          && ui_vars.ui8_street_mode_throttle_enabled)
           || !ui_vars.ui8_street_mode_function_enabled
           || !ui_vars.ui8_street_mode_enabled
         )
@@ -554,12 +569,8 @@ static bool onPressStreetMode(buttons_events_t events) {
   {
     if (ui_vars.ui8_street_mode_function_enabled && ui_vars.ui8_street_mode_hotkey_enabled)
     {
-      if (ui_vars.ui8_street_mode_enabled)
-        ui_vars.ui8_street_mode_enabled = 0;
-      else
-        ui_vars.ui8_street_mode_enabled = 1;
-
-      mainScreenOnDirtyClean();
+		ui_vars.ui8_street_mode_enabled = !ui_vars.ui8_street_mode_enabled;
+		mainScreenOnDirtyClean();
     }
 
     handled = true;
@@ -580,30 +591,52 @@ bool mainScreenOnPress(buttons_events_t events) {
     handled = onPressStreetMode(events);
 
   if (handled == false &&
-      ui8_m_alternate_field_state == 0) {
-    if (events & UP_CLICK) {
-      ui_vars.ui8_assist_level++;
+      ui8_m_alternate_field_state == 0)
+  {
+    if (events & UP_CLICK)
+	{
+	  if(ui8_set_riding_mode) {
+		// increment riding mode
+		ui_vars.ui8_riding_mode++;
+		
+		if(ui_vars.ui8_riding_mode > 5) {
+			ui_vars.ui8_riding_mode = 1;
+		}
+	  }
+	  else {
+		// increment assist level
+		ui_vars.ui8_assist_level++;
 
-      if (ui_vars.ui8_assist_level > ui_vars.ui8_number_of_assist_levels) {
-        ui_vars.ui8_assist_level = ui_vars.ui8_number_of_assist_levels;
-      }
-
-      m_assist_level_change_timeout = 20; // 2 seconds
-      handled = true;
+		if (ui_vars.ui8_assist_level > ui_vars.ui8_number_of_assist_levels) {
+			ui_vars.ui8_assist_level = ui_vars.ui8_number_of_assist_levels;
+		}
+	  }
+      
+	  m_assist_level_change_timeout = 20; // 2 seconds
+	  handled = true;
     }
 
-    if (
-      events & DOWN_CLICK
-      && !ui_vars.ui8_walk_assist // do not lower assist level if walk assist is active
-    ) {
-      if (ui_vars.ui8_assist_level > 0)
-        ui_vars.ui8_assist_level--;
-
-      m_assist_level_change_timeout = 20; // 2 seconds
-      handled = true;
+    if(events & DOWN_CLICK && !ui_vars.ui8_walk_assist) { // do not lower assist level if walk assist is active
+		if(ui8_set_riding_mode) {
+			// decrement riding mode
+			ui_vars.ui8_riding_mode--;
+		
+			if(ui_vars.ui8_riding_mode == 0) {
+				ui_vars.ui8_riding_mode = 5;
+			}
+		}
+		else {
+			// decrement assist level
+			if (ui_vars.ui8_assist_level > 0) {
+				ui_vars.ui8_assist_level--;
+			}
+		}
+		
+		m_assist_level_change_timeout = 20; // 2 seconds
+		handled = true;
     }
   }
-
+  
 	return handled;
 }
 
@@ -617,11 +650,10 @@ void set_conversions() {
 void lcd_main_screen(void) {
 	time();
 	walk_assist_state();
-//  offroad_mode();
 	battery_soc();
 	battery_display();
 	warnings();
-  up_time();
+	up_time();
 	trip_time();
 	wheel_speed();
 }
@@ -639,11 +671,13 @@ void wheel_speed(void)
 
 #ifdef SW102
   // if we are inside the timeout, override the wheel speed value so assist level is shown there
-  if (m_assist_level_change_timeout > 0) {
+  if (m_assist_level_change_timeout > 0)
+  {
     m_assist_level_change_timeout--;
     ui8_m_wheel_speed_integer = ui_vars.ui8_assist_level;
   }
 #endif
+
 }
 
 void alternatField(void) {
@@ -707,11 +741,10 @@ void alternatField(void) {
   }
 }
 
+
 void streetMode(void) {
-  if (ui_vars.ui8_street_mode_function_enabled)
-  {
-    ui_vars.ui8_street_mode_power_limit_div25 = (ui_vars.ui16_street_mode_power_limit / 25);
-  }
+  ui_vars.ui8_target_max_battery_power_div25 = (uint8_t)(ui_vars.ui16_target_max_battery_power / 25);
+  ui_vars.ui8_street_mode_power_limit_div25 = (uint8_t)(ui_vars.ui16_street_mode_power_limit / 25);
 }
 
 void screen_clock(void) {
@@ -737,6 +770,8 @@ void screen_clock(void) {
 #endif
     DisplayResetToDefaults();
     TripMemoriesReset();
+	BatterySOCReset();
+	SetDefaultWeight();
     DisplayResetBluetoothPeers();
     batteryTotalWh();
     batteryCurrent();
@@ -765,9 +800,9 @@ void thresholds(void) {
 
   if (*wheelSpeedField.rw->editable.number.auto_thresholds == FIELD_THRESHOLD_AUTO) {
     wheelSpeedField.rw->editable.number.error_threshold =
-        wheelSpeedFieldGraph.rw->editable.number.error_threshold = ui_vars.wheel_max_speed_x10;
+        wheelSpeedFieldGraph.rw->editable.number.error_threshold = ui_vars.ui16_wheel_max_speed_x10;
     wheelSpeedField.rw->editable.number.warn_threshold =
-        wheelSpeedFieldGraph.rw->editable.number.warn_threshold = ui_vars.wheel_max_speed_x10 - (ui_vars.wheel_max_speed_x10 / 5); // -20%
+        wheelSpeedFieldGraph.rw->editable.number.warn_threshold = ui_vars.ui16_wheel_max_speed_x10 - (ui_vars.ui16_wheel_max_speed_x10 / 5); // -20%
   } else if (*wheelSpeedField.rw->editable.number.auto_thresholds == FIELD_THRESHOLD_MANUAL) {
     wheelSpeedField.rw->editable.number.error_threshold =
         wheelSpeedFieldGraph.rw->editable.number.error_threshold = *wheelSpeedField.rw->editable.number.config_error_threshold;
@@ -776,7 +811,7 @@ void thresholds(void) {
   }
 
   if (g_graphVars[VarsWheelSpeed].auto_max_min == GRAPH_AUTO_MAX_MIN_SEMI_AUTO) {
-    g_graphVars[VarsWheelSpeed].max = ui_vars.wheel_max_speed_x10;
+    g_graphVars[VarsWheelSpeed].max = ui_vars.ui16_wheel_max_speed_x10;
     // forcing 0 to min, this way the max will adjust automatically if is higher
     g_graphVars[VarsWheelSpeed].min = 0;
   }
@@ -1010,10 +1045,10 @@ void setWarning(ColorOp color, const char *str) {
 		strncpy(warningStr, str, sizeof(warningStr));
 }
 
-static const char *motorErrors[] = { _S("None", "None"), _S("Motor init", "Motor init"), "Motor Blocked", "Torque Fault", "Brake Fault", "Throttle Fault", "Speed Fault", "Low Volt", "Comms"};
+static const char *motorErrors[] = { _S("None", "None"), _S("Motor not init", "Mot no ini"), "Torque Fault", "Cadence Fault", "Motor Blocked", "Throttle Fault", "Free", "Comms", "Speed Fault"};
 
 void warnings(void) {
-  uint32_t motor_temp_limit = ui_vars.ui8_temperature_limit_feature_enabled & 1;
+  //uint32_t motor_temp_limit = ui_vars.ui8_temperature_limit_feature_enabled & 1;
   uint8_t ui8_motorErrorsIndex;
 
   switch (g_motor_init_state) {
@@ -1026,14 +1061,29 @@ void warnings(void) {
       setWarning(ColorWarning, _S("Motor init", "Motor init"));
       return;
   }
+  
+  // display riding mode
+  if(ui8_display_riding_mode_timeout)
+	  ui8_display_riding_mode_timeout--;
+  
+  if(((ui8_set_riding_mode)&&(!ui_vars.ui8_assist_level))||
+    (ui8_display_riding_mode_timeout)) {
+	  switch (ui_vars.ui8_riding_mode) {
+		case 1: setWarning(ColorNormal, "POWER ASSIST"); break;
+		case 2: setWarning(ColorNormal, "TORQUE ASSIST"); break;
+		case 3: setWarning(ColorNormal, "CADENCE ASSIST"); break;
+		case 4: setWarning(ColorNormal, "eMTB ASSIST"); break;
+		case 5: setWarning(ColorNormal, "HYBRID ASSIST"); break;
+	  }
+	  return;
+  }
 
-	// High priorty faults in red
+  // High priorty faults in red
   if (ui_vars.ui8_error_states) {
     if (ui_vars.ui8_error_states & 1)
       ui8_motorErrorsIndex = 1;
     else if (ui_vars.ui8_error_states & 2)
-//      ui8_motorErrorsIndex = 2; // ignore this error for now
-      return;
+		ui8_motorErrorsIndex = 2;
     else if (ui_vars.ui8_error_states & 4)
       ui8_motorErrorsIndex = 3;
     else if (ui_vars.ui8_error_states & 8)
@@ -1046,17 +1096,17 @@ void warnings(void) {
       ui8_motorErrorsIndex = 7;
     else if (ui_vars.ui8_error_states & 128)
       ui8_motorErrorsIndex = 8;
-
+	
     char str[24];
     snprintf(str, sizeof(str), "%s%d%s%s", "e: ", ui8_motorErrorsIndex, " ", motorErrors[ui8_motorErrorsIndex]);
 		setWarning(ColorError, str);
 		return;
 	}
 
-	if (motor_temp_limit &&
-	    ui_vars.ui8_motor_temperature >= ui_vars.ui8_motor_temperature_max_value_to_limit) {
-		setWarning(ColorError, _S("Temp Shutdown", "Temp Shut"));
-		return;
+	if((ui_vars.ui8_optional_ADC_function == TEMPERATURE_CONTROL)&&
+	   (ui_vars.ui8_motor_temperature >= ui_vars.ui8_motor_temperature_max_value_to_limit)) {
+			setWarning(ColorError, _S("Temp Shutdown", "Temp Shut"));
+			return;
 	}
 
 	// If we had a watchdog failure, show it forever - so user will report a bug
@@ -1066,10 +1116,10 @@ void warnings(void) {
 	}
 
 	// warn faults in yellow
-  if (motor_temp_limit &&
-      ui_vars.ui8_motor_temperature >= ui_vars.ui8_motor_temperature_min_value_to_limit) {
-		setWarning(ColorWarning, _S("Temp Warning", "Temp Warn"));
-		return;
+	if((ui_vars.ui8_optional_ADC_function == TEMPERATURE_CONTROL)&&
+       (ui_vars.ui8_motor_temperature >= ui_vars.ui8_motor_temperature_min_value_to_limit)) {
+			setWarning(ColorWarning, _S("Temp Warning", "Temp Warn"));
+			return;
 	}
 
 	// All of the following possible 'faults' are low priority
@@ -1079,11 +1129,17 @@ void warnings(void) {
 		return;
 	}
 
-	if(ui_vars.ui8_walk_assist) {
-		setWarning(ColorNormal, "WALK");
+	if((ui_vars.ui8_walk_assist)&&(ui_vars.ui8_assist_level)) {
+		if(ui_vars.ui16_wheel_speed_x10 <= WALK_ASSIST_THRESHOLD_SPEED_X10)
+			setWarning(ColorNormal, "WALK");
+		else if(ui_vars.ui16_wheel_speed_x10 >= CRUISE_THRESHOLD_SPEED_X10)
+			setWarning(ColorNormal, "CRUISE");
+		else
+			setWarning(ColorNormal, "");
+		
 		return;
 	}
-
+	
 	if (ui_vars.ui8_lights) {
 		setWarning(ColorNormal, "LIGHT");
 		return;
@@ -1167,12 +1223,12 @@ void walk_assist_state(void) {
 extern Screen *screens[];
 
 void showNextScreen() {
-  g_showNextScreenPreviousIndex = g_showNextScreenIndex;
+	g_showNextScreenPreviousIndex = g_showNextScreenIndex;
 
-  // increase to index of next screen
-  if (screens[++g_showNextScreenIndex] == NULL) {
-    g_showNextScreenIndex = 0;
-  }
+	// increase to index of next screen
+	if (screens[++g_showNextScreenIndex] == NULL) {
+		g_showNextScreenIndex = 0;
+	}
 
 	screenShow(screens[g_showNextScreenIndex]);
 }
@@ -1189,13 +1245,23 @@ static bool appwide_onpress(buttons_events_t events)
   if ((events & SCREENCLICK_NEXT_SCREEN) &&
       ((g_motor_init_state == MOTOR_INIT_READY) ||
       (g_motor_init_state == MOTOR_INIT_SIMULATING))) {
-    showNextScreen();
+		if(ui_vars.ui8_assist_level) {
+			showNextScreen();
+			ui8_set_riding_mode = 0;
+		}
+		else {
+			ui8_set_riding_mode = !ui8_set_riding_mode;
+		}
     return true;
   }
 
-  if (events & SCREENCLICK_ENTER_CONFIGURATIONS) {
-    screenShow(&configScreen);
-    return true;
+  if((events & SCREENCLICK_ENTER_CONFIGURATIONS)||
+    ((events & SCREENCLICK_START_CUSTOMIZING)&&
+	 (ui_vars.ui8_config_shortcut_key_enabled)&&
+	 (ui_vars.ui8_assist_level)))
+  {
+		screenShow(&configScreen);
+		return true;
   }
 
 	return false;
@@ -1278,6 +1344,8 @@ void DisplayResetToDefaults(void) {
   if (ui8_g_configuration_display_reset_to_defaults) {
     ui8_g_configuration_display_reset_to_defaults = 0;
     eeprom_init_defaults();
+	ui_vars.ui16_street_mode_power_limit = ui_vars.ui8_street_mode_power_limit_div25 * 25;
+	ui_vars.ui16_target_max_battery_power = ui_vars.ui8_target_max_battery_power_div25 * 25;
   }
 }
 
@@ -1311,6 +1379,33 @@ void TripMemoriesReset(void) {
     rt_vars.ui16_trip_b_avg_speed_x10 = 0;
     rt_vars.ui16_trip_b_max_speed_x10 = 0;
   }
+}
+
+void BatterySOCReset(void) {
+	if (ui8_g_configuration_battery_soc_reset) {
+		ui8_g_configuration_battery_soc_reset = 0;
+		
+		if(ui_vars.ui16_battery_voltage_soc_x10 < ui_vars.ui16_battery_voltage_reset_wh_counter_x10) {
+			reset_wh();
+			
+			uint8_t ui8_battery_soc_index = 100
+				- ((ui_vars.ui16_battery_voltage_soc_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10) * 100)
+				/ (ui_vars.ui16_battery_voltage_reset_wh_counter_x10 - ui_vars.ui16_battery_low_voltage_cut_off_x10);
+			
+			ui_vars.ui32_wh_x10_offset = (ui_vars.ui32_wh_x10_100_percent
+				* ui8_battery_soc_used[ui8_battery_soc_index]) / 100;
+		}
+	}
+}
+
+void SetDefaultWeight(void) {
+	if (ui8_g_configuration_set_default_weight) {
+		ui8_g_configuration_set_default_weight = 0;
+		
+		ui_vars.ui8_weight_on_pedal = 25; // kg
+		ui_vars.ui16_adc_pedal_torque_calibration = ui_vars.ui16_adc_pedal_torque_offset
+			+ ((ui_vars.ui16_adc_pedal_torque_max - ui_vars.ui16_adc_pedal_torque_offset) * 75) / 100;
+	}
 }
 
 void DisplayResetBluetoothPeers(void) {
