@@ -317,7 +317,11 @@ void eeprom_init_defaults(void);
 #define DEFAULT_THROTTLE_VIRTUAL_STEP                               5
 //#define DEFAULT_TORQUE_SENSOR_FILTER                                20 // 20%
 #define DEFAULT_TORQUE_SENSOR_ADC_THRESHOLD                         20
+#ifndef SW102
 #define DEFAULT_COAST_BRAKE_ENABLE                                  0 // disable
+#else
+#define DEFAULT_COAST_BRAKE_ENABLE                                  1 // enable
+#endif
 #define DEFAULT_VALUE_MOTOR_ACCELERATION_ADJUSTMENT					5
 #define DEFAULT_VALUE_PEDAL_TORQUE_ADC_STEP_x100					67
 #define DEFAULT_LIGHTS_CONFIGURATION								0

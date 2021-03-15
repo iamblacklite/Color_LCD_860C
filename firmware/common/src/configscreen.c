@@ -47,23 +47,44 @@ static Field motorMenus[] =
 	FIELD_EDITABLE_ENUM(_S("Motor voltage", "Motor volt"), &ui_vars.ui8_motor_type, "48V", "36V"),
 	FIELD_EDITABLE_UINT(_S("Motor power max", "Power max"), &ui_vars.ui16_target_max_battery_power, "watts", 25, 2500, .div_digits = 0, .inc_step = 25, .hide_fraction = true),
 	FIELD_EDITABLE_UINT(_S("Motor acceleration", "Motor acc"), &ui_vars.ui8_motor_acceleration_adjustment, "%", 0, 100, .div_digits = 0),
-	FIELD_EDITABLE_UINT(_S("Min current ADC step", "MinADC st"), &ui_vars.ui8_motor_current_min_adc, "amps", 0, 3), // 3 ADC steps = 0.48 amps
+	FIELD_EDITABLE_UINT(_S("Min current ADC step", "MinADCcur"), &ui_vars.ui8_motor_current_min_adc, "amps", 0, 3), // 3 ADC steps = 0.48 amps
 	FIELD_END };
 
+#ifdef SW102
 static Field torqueSensorMenus[] =
 {
 	FIELD_EDITABLE_ENUM(_S("Assist w/o pedal", "A w/o ped"), &ui_vars.ui8_motor_assistance_startup_without_pedal_rotation, "disable", "enable"),
-	FIELD_EDITABLE_UINT(_S("Torque ADC threshold", "Torq s thr"), &ui_vars.ui8_torque_sensor_adc_threshold, "", 5, 100),
-	FIELD_EDITABLE_ENUM(_S("Coast brake", "Coast brak"), &ui_vars.ui8_coast_brake_enable, "disable", "enable"),
-	FIELD_EDITABLE_UINT(_S("Coast brake ADC", "Coa bk ADC"), &ui_vars.ui8_coast_brake_adc, "", 5, 50),
+	FIELD_EDITABLE_UINT(_S("Torque ADC threshold", "Torque thr"), &ui_vars.ui8_torque_sensor_adc_threshold, "", 5, 100),
+	//FIELD_EDITABLE_ENUM(_S("Coast brake", "Coast brk"), &ui_vars.ui8_coast_brake_enable, "disable", "enable"),
+	FIELD_EDITABLE_UINT(_S("Coast brake ADC", "Coast ADC"), &ui_vars.ui8_coast_brake_adc, "", 5, 50),
+	FIELD_END };
+	
+static Field torqueCalibrationMenus[] =
+{
 	FIELD_EDITABLE_ENUM(_S("Calibration", "Calibrat"), &ui_vars.ui8_torque_sensor_calibration_feature_enabled, "disable", "enable"),
 	FIELD_EDITABLE_UINT(_S("Torque adc step", "ADC step"), &ui_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100, "", 30, 80),      
-	FIELD_EDITABLE_UINT("Torque adc offset", &ui_vars.ui16_adc_pedal_torque_offset, "", 0, 250),
-	FIELD_EDITABLE_UINT("Torque adc max", &ui_vars.ui16_adc_pedal_torque_max, "", 0, 500),
+	FIELD_EDITABLE_UINT(_S("Torque adc offset", "ADCoffset"), &ui_vars.ui16_adc_pedal_torque_offset, "", 0, 250),
+	FIELD_EDITABLE_UINT(_S("Torque adc max", "ADC max"), &ui_vars.ui16_adc_pedal_torque_max, "", 0, 500),
 	FIELD_EDITABLE_UINT(_S("Weight on pedal", "Weight"), &ui_vars.ui8_weight_on_pedal, "kg", 20, 80),
-	FIELD_EDITABLE_UINT("Torque adc on weight", &ui_vars.ui16_adc_pedal_torque_calibration, "", 100, 500),
+	FIELD_EDITABLE_UINT(_S("Torque adc on weight", "ADC weight"), &ui_vars.ui16_adc_pedal_torque_calibration, "", 100, 500),
 	FIELD_EDITABLE_ENUM(_S("Default weight", "Set weight"), &ui8_g_configuration_set_default_weight, "no", "yes"),
 	FIELD_END };
+#else
+static Field torqueSensorMenus[] =
+{
+	FIELD_EDITABLE_ENUM(_S("Assist w/o pedal", "A w/o ped"), &ui_vars.ui8_motor_assistance_startup_without_pedal_rotation, "disable", "enable"),
+	FIELD_EDITABLE_UINT(_S("Torque ADC threshold", "Torque thr"), &ui_vars.ui8_torque_sensor_adc_threshold, "", 5, 100),
+	FIELD_EDITABLE_ENUM(_S("Coast brake", "Coast brk"), &ui_vars.ui8_coast_brake_enable, "disable", "enable"),
+	FIELD_EDITABLE_UINT(_S("Coast brake ADC", "Coast ADC"), &ui_vars.ui8_coast_brake_adc, "", 5, 50),
+	FIELD_EDITABLE_ENUM(_S("Calibration", "Calibrat"), &ui_vars.ui8_torque_sensor_calibration_feature_enabled, "disable", "enable"),
+	FIELD_EDITABLE_UINT(_S("Torque adc step", "ADC step"), &ui_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100, "", 30, 80),      
+	FIELD_EDITABLE_UINT(_S("Torque adc offset", "ADCoffset"), &ui_vars.ui16_adc_pedal_torque_offset, "", 0, 250),
+	FIELD_EDITABLE_UINT(_S("Torque adc max", "ADC max"), &ui_vars.ui16_adc_pedal_torque_max, "", 0, 500),
+	FIELD_EDITABLE_UINT(_S("Weight on pedal", "Weight"), &ui_vars.ui8_weight_on_pedal, "kg", 20, 80),
+	FIELD_EDITABLE_UINT(_S("Torque adc on weight", "ADC weight"), &ui_vars.ui16_adc_pedal_torque_calibration, "", 100, 500),
+	FIELD_EDITABLE_ENUM(_S("Default weight", "Set weight"), &ui8_g_configuration_set_default_weight, "no", "yes"),
+	FIELD_END };
+#endif
 
 static Field powerAssistMenus[] =
 {
@@ -138,14 +159,14 @@ static Field walkAssistMenus[] =
 	FIELD_EDITABLE_UINT("Level 7", &ui_vars.ui8_walk_assist_level_factor[6], "", 0, 100),
 	FIELD_EDITABLE_UINT("Level 8", &ui_vars.ui8_walk_assist_level_factor[7], "", 0, 100),
 	FIELD_EDITABLE_UINT("Level 9", &ui_vars.ui8_walk_assist_level_factor[8], "", 0, 100),
-	FIELD_EDITABLE_ENUM("Cruise feature", &ui_vars.ui8_cruise_feature_enabled, "disable", "enable"),
+	FIELD_EDITABLE_ENUM(_S("Cruise feature", "Cruise fe"), &ui_vars.ui8_cruise_feature_enabled, "disable", "enable"),
 	FIELD_END };
 
 static Field startupPowerMenus[] =
 {
 	FIELD_EDITABLE_ENUM("Feature", &ui_vars.ui8_startup_motor_power_boost_feature_enabled, "disable", "enable"), // FIXME, share one array of disable/enable strings
-	FIELD_EDITABLE_UINT("Boost torque factor", &ui_vars.ui16_startup_boost_torque_factor, "%", 1, 500, .div_digits = 0),
-	FIELD_EDITABLE_UINT("Boost cadence step", &ui_vars.ui8_startup_boost_cadence_step, "", 10, 50, .div_digits = 0),
+	FIELD_EDITABLE_UINT(_S("Boost torque factor", "Boost fact"), &ui_vars.ui16_startup_boost_torque_factor, "%", 1, 500, .div_digits = 0),
+	FIELD_EDITABLE_UINT(_S("Boost cadence step", "Boost step"), &ui_vars.ui8_startup_boost_cadence_step, "", 10, 50, .div_digits = 0),
 	FIELD_END };
 
 static Field motorTempMenus[] =
@@ -163,7 +184,7 @@ static Field streetModeMenus[] =
 	FIELD_EDITABLE_UINT(_S("Speed limit", "Speed limt"), &ui_vars.ui8_street_mode_speed_limit, "kph", 1, 99, .div_digits = 0, .inc_step = 1, .hide_fraction = true),
 	FIELD_EDITABLE_UINT(_S("Motor power limit", "Power limt"), &ui_vars.ui16_street_mode_power_limit, "watts", 25, 2500, .div_digits = 0, .inc_step = 25, .hide_fraction = true),
 	FIELD_EDITABLE_ENUM(_S("Throttle enable", "Throt enab"), &ui_vars.ui8_street_mode_throttle_enabled, "no", "yes"),
-	FIELD_EDITABLE_ENUM(_S("Cruise enable", "Crui enab"), &ui_vars.ui8_street_mode_cruise_enabled, "no", "yes"),
+	FIELD_EDITABLE_ENUM(_S("Cruise enable", "Cruise ena"), &ui_vars.ui8_street_mode_cruise_enabled, "no", "yes"),
 	FIELD_EDITABLE_ENUM(_S("Hotkey enable", "HotKy enab"), &ui_vars.ui8_street_mode_hotkey_enabled, "no", "yes"),
     FIELD_END };
 
@@ -176,7 +197,7 @@ static Field displayMenus[] =
 	FIELD_EDITABLE_UINT("Brightness on", &ui_vars.ui8_lcd_backlight_on_brightness, "", 5, 100, .inc_step = 5, .onSetEditable = onSetConfigurationDisplayLcdBacklightOnBrightness),
 	FIELD_EDITABLE_UINT("Brightness off", &ui_vars.ui8_lcd_backlight_off_brightness, "", 5, 100, .inc_step = 5, .onSetEditable = onSetConfigurationDisplayLcdBacklightOffBrightness),
 	FIELD_EDITABLE_ENUM("Buttons invert", &ui_vars.ui8_buttons_up_down_invert, "default", "invert"),
-	FIELD_EDITABLE_ENUM("Config shortcut key", &ui_vars.ui8_config_shortcut_key_enabled, "no", "yes"),
+	FIELD_EDITABLE_ENUM(_S("Config shortcut key", "Short key"), &ui_vars.ui8_config_shortcut_key_enabled, "no", "yes"),
 #endif
 	FIELD_EDITABLE_UINT(_S("Auto power off", "Auto p off"), &ui_vars.ui8_lcd_power_off_time_minutes, "mins", 0, 255),
 	FIELD_EDITABLE_ENUM("Units", &ui_vars.ui8_units_type, "SI", "Imperial"),
@@ -381,6 +402,9 @@ static Field topMenus[] =
 	FIELD_SCROLLABLE("SOC", batterySOCMenus),
 	FIELD_SCROLLABLE(_S("Motor", "Motor"), motorMenus),
 	FIELD_SCROLLABLE(_S("Torque sensor", "Torque sen"), torqueSensorMenus),
+#ifdef SW102
+	FIELD_SCROLLABLE(_S("Torque calibr", "Torque cal"), torqueCalibrationMenus),
+#endif
 	FIELD_SCROLLABLE(_S("Assist level", "Assist"), assistMenus),
 	FIELD_SCROLLABLE(_S("Walk assist", "Walk"), walkAssistMenus),
 	FIELD_SCROLLABLE(_S("Startup BOOST", "Star BOOST"), startupPowerMenus),
