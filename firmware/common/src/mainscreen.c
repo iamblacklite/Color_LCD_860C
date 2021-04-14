@@ -842,13 +842,38 @@ void thresholds(void) {
         humanPowerFieldGraph.rw->editable.number.warn_threshold = *humanPowerField.rw->editable.number.config_warn_threshold;
   }
 
-  if (*batteryPowerField.rw->editable.number.auto_thresholds == FIELD_THRESHOLD_MANUAL) {
+  if (*batteryPowerField.rw->editable.number.auto_thresholds == FIELD_THRESHOLD_AUTO) {
+	if (ui_vars.ui8_street_mode_enabled) {
+		int32_t temp = (int32_t) ui_vars.ui16_street_mode_power_limit;
+		batteryPowerField.rw->editable.number.error_threshold =
+			batteryPowerFieldGraph.rw->editable.number.error_threshold = temp - (temp / 50); // -2%
+		batteryPowerField.rw->editable.number.warn_threshold =
+			batteryPowerFieldGraph.rw->editable.number.warn_threshold = temp - (temp / 10); // -10%
+	}
+	else {
+		int32_t temp = (int32_t) ui_vars.ui16_target_max_battery_power;
+		batteryPowerField.rw->editable.number.error_threshold =
+			batteryPowerFieldGraph.rw->editable.number.error_threshold = temp - (temp / 50); // -2%
+		batteryPowerField.rw->editable.number.warn_threshold =
+			batteryPowerFieldGraph.rw->editable.number.warn_threshold = temp - (temp / 10); // -10%
+	}
+  } else if (*batteryPowerField.rw->editable.number.auto_thresholds == FIELD_THRESHOLD_MANUAL) {
     batteryPowerField.rw->editable.number.error_threshold =
         batteryPowerFieldGraph.rw->editable.number.error_threshold = *batteryPowerField.rw->editable.number.config_error_threshold;
     batteryPowerField.rw->editable.number.warn_threshold =
         batteryPowerFieldGraph.rw->editable.number.warn_threshold = *batteryPowerField.rw->editable.number.config_warn_threshold;
   }
 
+  if (g_graphVars[VarsBatteryPower].auto_max_min == GRAPH_AUTO_MAX_MIN_SEMI_AUTO) {
+	if (ui_vars.ui8_street_mode_enabled) {
+		g_graphVars[VarsBatteryPower].max = ui_vars.ui16_street_mode_power_limit;
+	}
+	else {
+		g_graphVars[VarsBatteryPower].max = ui_vars.ui16_target_max_battery_power;
+	}
+    g_graphVars[VarsBatteryPower].min = 0;
+  }
+  
   if (*batteryVoltageField.rw->editable.number.auto_thresholds == FIELD_THRESHOLD_AUTO) {
     int32_t temp = (int32_t) ui_vars.ui16_battery_low_voltage_cut_off_x10;
     batteryVoltageField.rw->editable.number.error_threshold =
@@ -938,9 +963,9 @@ void thresholds(void) {
 
   if (*motorErpsField.rw->editable.number.auto_thresholds == FIELD_THRESHOLD_AUTO) {
     motorErpsField.rw->editable.number.error_threshold =
-        motorErpsFieldGraph.rw->editable.number.error_threshold = 525;
+        motorErpsFieldGraph.rw->editable.number.error_threshold = 550;
     motorErpsField.rw->editable.number.warn_threshold =
-        motorErpsFieldGraph.rw->editable.number.warn_threshold = 473; // -10%
+        motorErpsFieldGraph.rw->editable.number.warn_threshold = 495; // -10%
   } else if (*motorErpsField.rw->editable.number.auto_thresholds == FIELD_THRESHOLD_MANUAL) {
     motorErpsField.rw->editable.number.error_threshold =
         motorErpsFieldGraph.rw->editable.number.error_threshold = *motorErpsField.rw->editable.number.config_error_threshold;
@@ -951,9 +976,9 @@ void thresholds(void) {
   if (*pwmDutyField.rw->editable.number.auto_thresholds == FIELD_THRESHOLD_AUTO) {
     if (ui_vars.ui8_torque_sensor_calibration_feature_enabled) {
       pwmDutyField.rw->editable.number.error_threshold =
-          pwmDutyFieldGraph.rw->editable.number.error_threshold = 111;
+          pwmDutyFieldGraph.rw->editable.number.error_threshold = 100;
       pwmDutyField.rw->editable.number.warn_threshold =
-          pwmDutyFieldGraph.rw->editable.number.warn_threshold = 99;
+          pwmDutyFieldGraph.rw->editable.number.warn_threshold = 90;
     } else {
       pwmDutyField.rw->editable.number.error_threshold =
           pwmDutyFieldGraph.rw->editable.number.error_threshold = 100;
@@ -969,7 +994,7 @@ void thresholds(void) {
 
   if (g_graphVars[VarsMotorPWM].auto_max_min == GRAPH_AUTO_MAX_MIN_SEMI_AUTO) {
     if (ui_vars.ui8_torque_sensor_calibration_feature_enabled) {
-      g_graphVars[VarsMotorPWM].max = 111;
+      g_graphVars[VarsMotorPWM].max = 100;
       g_graphVars[VarsMotorPWM].min = 0;
     } else {
       g_graphVars[VarsMotorPWM].max = 100;

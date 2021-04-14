@@ -2485,9 +2485,9 @@ void screen_init(void) {
   batteryPowerField.rw->editable.number.config_warn_threshold = &g_vars[VarsBatteryPower].config_warn_threshold;
   batteryPowerField.rw->editable.number.config_error_threshold = &g_vars[VarsBatteryPower].config_error_threshold;
 
-  batteryPowerField.rw->editable.number.auto_thresholds = &g_vars[VarsBatteryPowerUsage].auto_thresholds;
-  batteryPowerField.rw->editable.number.config_warn_threshold = &g_vars[VarsBatteryPowerUsage].config_warn_threshold;
-  batteryPowerField.rw->editable.number.config_error_threshold = &g_vars[VarsBatteryPowerUsage].config_error_threshold;
+  batteryPowerUsageField.rw->editable.number.auto_thresholds = &g_vars[VarsBatteryPowerUsage].auto_thresholds;
+  batteryPowerUsageField.rw->editable.number.config_warn_threshold = &g_vars[VarsBatteryPowerUsage].config_warn_threshold;
+  batteryPowerUsageField.rw->editable.number.config_error_threshold = &g_vars[VarsBatteryPowerUsage].config_error_threshold;
 
   batteryVoltageField.rw->editable.number.auto_thresholds = &g_vars[VarsBatteryVoltage].auto_thresholds;
   batteryVoltageField.rw->editable.number.config_warn_threshold = &g_vars[VarsBatteryVoltage].config_warn_threshold;

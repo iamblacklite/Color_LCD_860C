@@ -92,7 +92,7 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_battery_max_current;
 	uint8_t ui8_motor_max_current;
 	uint8_t ui8_motor_current_min_adc;
-	//uint8_t ui8_field_weakening;
+	uint8_t ui8_field_weakening;
 	//uint8_t ui8_ramp_up_amps_per_second_x10;
 	uint16_t ui16_battery_low_voltage_cut_off_x10;
 	uint16_t ui16_battery_voltage_reset_wh_counter_x10;
@@ -158,7 +158,7 @@ typedef struct rt_vars_struct {
   uint8_t ui8_street_mode_throttle_enabled;
   uint8_t ui8_street_mode_cruise_enabled;
 
-  //uint8_t ui8_pedal_cadence_fast_stop;
+  uint8_t ui8_pedal_cadence_fast_stop;
   uint8_t ui8_coast_brake_adc;
   //uint8_t ui8_adc_lights_current_offset;
   uint16_t ui16_adc_battery_current;
@@ -168,7 +168,7 @@ typedef struct rt_vars_struct {
   uint8_t ui8_coast_brake_enable;
 
   uint8_t ui8_motor_acceleration_adjustment;
-  uint8_t ui8_available;
+  uint8_t ui8_motor_deceleration_adjustment;
   uint8_t ui8_pedal_torque_per_10_bit_ADC_step_x100;
   uint8_t ui8_lights_configuration;
   uint8_t ui8_assist_whit_error_enabled;
@@ -246,7 +246,7 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_battery_max_current;
 	uint8_t ui8_motor_max_current;
 	uint8_t ui8_motor_current_min_adc;
-	//uint8_t ui8_field_weakening;
+	uint8_t ui8_field_weakening;
 	//uint8_t ui8_ramp_up_amps_per_second_x10;
 	uint16_t ui16_battery_low_voltage_cut_off_x10;
 	uint16_t ui16_battery_voltage_reset_wh_counter_x10;
@@ -411,7 +411,7 @@ typedef struct ui_vars_struct {
   uint8_t var_motor_foc_threshold_max;
   uint8_t var_motor_foc_threshold_min;
 
-  //uint8_t ui8_pedal_cadence_fast_stop;
+  uint8_t ui8_pedal_cadence_fast_stop;
   uint8_t ui8_coast_brake_adc;
   //uint8_t ui8_adc_lights_current_offset;
   uint16_t ui16_adc_battery_current;
@@ -422,7 +422,7 @@ typedef struct ui_vars_struct {
   uint8_t ui8_coast_brake_enable;
   
   uint8_t ui8_motor_acceleration_adjustment;
-  uint8_t ui8_available;
+  uint8_t ui8_motor_deceleration_adjustment;
   uint8_t ui8_pedal_torque_per_10_bit_ADC_step_x100;
   uint8_t ui8_lights_configuration;
   uint8_t ui8_assist_whit_error_enabled;

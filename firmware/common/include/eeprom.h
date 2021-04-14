@@ -39,7 +39,6 @@ typedef struct eeprom_data {
 	uint32_t ui32_wh_x10_offset;
 	uint32_t ui32_wh_x10_100_percent;
 	uint8_t ui8_battery_soc_enable;
-//	uint8_t ui8_time_field_enable;
 	uint8_t ui8_target_max_battery_power_div25;
 	uint8_t ui8_battery_max_current;
 	uint8_t ui8_motor_max_current; // CHECK
@@ -97,13 +96,13 @@ typedef struct eeprom_data {
 	//uint8_t ui8_street_mode_hotkey_enabled;
 
 #ifndef SW102
-	Graph_eeprom graph_eeprom[VARS_SIZE];
+  Graph_eeprom graph_eeprom[VARS_SIZE];
   uint8_t tripDistanceField_x_axis_scale_config;
-	field_threshold_t wheelSpeedField_auto_thresholds;
-	int32_t wheelSpeedField_config_error_threshold;
-	int32_t wheelSpeedField_config_warn_threshold;
-	uint8_t wheelSpeedField_x_axis_scale_config;
-	field_threshold_t cadenceField_auto_thresholds;
+  field_threshold_t wheelSpeedField_auto_thresholds;
+  int32_t wheelSpeedField_config_error_threshold;
+  int32_t wheelSpeedField_config_warn_threshold;
+  uint8_t wheelSpeedField_x_axis_scale_config;
+  field_threshold_t cadenceField_auto_thresholds;
   int32_t cadenceField_config_error_threshold;
   int32_t cadenceField_config_warn_threshold;
   uint8_t cadenceField_x_axis_scale_config;
@@ -155,14 +154,14 @@ typedef struct eeprom_data {
 
   //uint8_t ui8_pedal_cadence_fast_stop;
   uint8_t ui8_coast_brake_adc;
-//  uint8_t ui8_adc_lights_current_offset;
+  //uint8_t ui8_adc_lights_current_offset;
   uint8_t ui8_throttle_virtual_step;
-//  uint8_t ui8_torque_sensor_filter;
+  //uint8_t ui8_torque_sensor_filter;
   uint8_t ui8_torque_sensor_adc_threshold;
   //uint8_t ui8_coast_brake_enable;
   
   uint8_t ui8_motor_acceleration_adjustment;
-  uint8_t ui8_available;
+  uint8_t ui8_time_field_enable;
   uint8_t ui8_pedal_torque_per_10_bit_ADC_step_x100;
   uint8_t ui8_lights_configuration;
   uint16_t ui16_startup_boost_torque_factor;
@@ -171,11 +170,10 @@ typedef struct eeprom_data {
   uint16_t ui16_adc_pedal_torque_max;
   uint8_t ui8_weight_on_pedal;
   uint16_t ui16_adc_pedal_torque_calibration;
-
   
 #ifndef SW102
   uint8_t  ui8_trip_a_auto_reset;
-	uint16_t ui16_trip_a_auto_reset_hours;
+  uint16_t ui16_trip_a_auto_reset_hours;
   uint32_t ui32_trip_a_last_update_time;
 #endif
   uint32_t ui32_trip_a_distance_x1000;
@@ -184,12 +182,14 @@ typedef struct eeprom_data {
 
 #ifndef SW102  
   uint8_t  ui8_trip_b_auto_reset;
-	uint16_t ui16_trip_b_auto_reset_hours;
+  uint16_t ui16_trip_b_auto_reset_hours;
   uint32_t ui32_trip_b_last_update_time;
 #endif
   uint32_t ui32_trip_b_distance_x1000;
   uint32_t ui32_trip_b_time;
   uint16_t ui16_trip_b_max_speed_x10;
+  
+  uint8_t ui8_motor_deceleration_adjustment;
   
 // FIXME align to 32 bit value by end of structure and pack other fields
 } eeprom_data_t;
@@ -312,7 +312,7 @@ void eeprom_init_defaults(void);
 #define DEFAULT_STREET_MODE_HOTKEY_ENABLE                           0 // disabled
 #define DEFAULT_PEDAL_CADENCE_FAST_STOP_ENABLE                      0 // disabled
 #define DEFAULT_COAST_BRAKE_ADC                                     30 // 15: tested by plpetrov user on 28.04.2020:
-//#define DEFAULT_FIELD_WEAKENING                                     1 // 1 enabled
+#define DEFAULT_FIELD_WEAKENING                                     1 // 1 enabled
 //#define DEFAULT_ADC_LIGHTS_CURRENT_OFFSET                           1
 #define DEFAULT_THROTTLE_VIRTUAL_STEP                               5
 //#define DEFAULT_TORQUE_SENSOR_FILTER                                20 // 20%
@@ -323,9 +323,9 @@ void eeprom_init_defaults(void);
 #define DEFAULT_COAST_BRAKE_ENABLE                                  1 // enable
 #endif
 #define DEFAULT_VALUE_MOTOR_ACCELERATION_ADJUSTMENT					5
+#define DEFAULT_VALUE_MOTOR_DECELERATION_ADJUSTMENT					5
 #define DEFAULT_VALUE_PEDAL_TORQUE_ADC_STEP_x100					67
 #define DEFAULT_LIGHTS_CONFIGURATION								0
-#define DEFAULT_VALUE_AVAILABLE										0
 
 #define DEFAULT_TORQUE_SENSOR_ADC_OFFSET							150
 #define DEFAULT_TORQUE_SENSOR_ADC_MAX								300
@@ -350,7 +350,7 @@ void eeprom_init_defaults(void);
 (DEFAULT_COAST_BRAKE_ENABLE << 2) | \
 (DEFAULT_VALUE_MOTOR_ASSISTANCE_WITHOUT_PEDAL_ROTATION << 3) | \
 (DEFAULT_VALUE_STARTUP_MOTOR_POWER_BOOST_FEATURE_ENABLED << 4) | \
-(DEAFULT_VALUE_TIME_FIELD << 5) | \
+(DEFAULT_PEDAL_CADENCE_FAST_STOP_ENABLE << 5) | \
 (DEFAULT_VALUE_CRUISE_FEATURE_ENABLED << 6) | \
 (DEFAULT_VALUE_WALK_ASSIST_FEATURE_ENABLED << 7))
 
@@ -364,7 +364,8 @@ void eeprom_init_defaults(void);
 (DEFAULT_STREET_MODE_HOTKEY_ENABLE << 7))
 
 #define DEFAULT_BIT_DATA_3	(DEFAULT_STREET_MODE_CRUISE_ENABLE | \
-(DEFAULT_VALUE_CONFIG_SHORTCUT_KEY_ENABLED << 1))
+(DEFAULT_VALUE_CONFIG_SHORTCUT_KEY_ENABLED << 1) | \
+(DEFAULT_FIELD_WEAKENING << 2))
 // bit free for future use
 
 

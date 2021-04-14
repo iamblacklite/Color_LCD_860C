@@ -305,9 +305,8 @@ void rt_send_tx_package(frame_type_t type) {
 		// motor acceleration adjustment
 		ui8_usart1_tx_buffer[14] = rt_vars.ui8_motor_acceleration_adjustment;
 		
-		// TODO
-		// target speed for cruise
-		ui8_usart1_tx_buffer[15] = 0;
+		// motor deceleration adjustment
+		ui8_usart1_tx_buffer[15] = rt_vars.ui8_motor_deceleration_adjustment;
 			
 		// pedal torque adc step x100 to calculate human power
 		rt_vars.ui8_pedal_torque_ADC_step_calc_x100 = (rt_vars.ui8_weight_on_pedal * 167)
@@ -320,10 +319,13 @@ void rt_send_tx_package(frame_type_t type) {
 		ui8_usart1_tx_buffer[78] = (uint8_t) (ui16_temp  & 0xff);
 		ui8_usart1_tx_buffer[79] = (uint8_t) (ui16_temp >> 8);
 
+		// disable motor current min adc
+		rt_vars.ui8_motor_current_min_adc = 0;
+		
 		ui8_usart1_tx_buffer[80] = (
-		  //(rt_vars.ui8_pedal_cadence_fast_stop |
-          (rt_vars. ui8_coast_brake_enable << 1) |
-          //(rt_vars.ui8_g_field_weakening_enable << 2) |
+		  rt_vars.ui8_pedal_cadence_fast_stop |
+		  (rt_vars.ui8_field_weakening << 1) |
+          (rt_vars. ui8_coast_brake_enable << 2) |
           //(rt_vars.ui8_motor_current_control_mode << 3) |
 		  //rt_vars.  << 4) |
 		  (rt_vars.ui8_motor_current_min_adc << 5));
@@ -793,7 +795,7 @@ void copy_rt_to_ui_vars(void) {
 	rt_vars.ui8_battery_max_current = ui_vars.ui8_battery_max_current;
 	rt_vars.ui8_motor_max_current = ui_vars.ui8_motor_max_current;
 	rt_vars.ui8_motor_current_min_adc = ui_vars.ui8_motor_current_min_adc;
-	//rt_vars.ui8_field_weakening = ui_vars.ui8_field_weakening;
+	rt_vars.ui8_field_weakening = ui_vars.ui8_field_weakening;
 	//rt_vars.ui8_ramp_up_amps_per_second_x10 =
 	//		ui_vars.ui8_ramp_up_amps_per_second_x10;
 	rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui8_target_max_battery_power_div25;
@@ -834,7 +836,7 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_street_mode_throttle_enabled = ui_vars.ui8_street_mode_throttle_enabled;
   rt_vars.ui8_street_mode_cruise_enabled = ui_vars.ui8_street_mode_cruise_enabled;
   rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
-  //rt_vars.ui8_pedal_cadence_fast_stop = ui_vars.ui8_pedal_cadence_fast_stop;
+  rt_vars.ui8_pedal_cadence_fast_stop = ui_vars.ui8_pedal_cadence_fast_stop;
   rt_vars.ui8_coast_brake_adc = ui_vars.ui8_coast_brake_adc;
   //rt_vars.ui8_adc_lights_current_offset = ui_vars.ui8_adc_lights_current_offset;
   rt_vars.ui8_throttle_virtual = ui_vars.ui8_throttle_virtual;
@@ -843,6 +845,7 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   
   rt_vars.ui8_motor_acceleration_adjustment = ui_vars.ui8_motor_acceleration_adjustment;
+  rt_vars.ui8_motor_deceleration_adjustment = ui_vars.ui8_motor_deceleration_adjustment;
   rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100 = ui_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100;
   rt_vars.ui8_lights_configuration = ui_vars.ui8_lights_configuration;
   rt_vars.ui16_startup_boost_torque_factor = ui_vars.ui16_startup_boost_torque_factor;
@@ -970,8 +973,7 @@ void communications(void) {
 				rt_vars.ui8_duty_cycle =  100 - ui8_battery_soc_used[ui8_battery_soc_index];
 			} 
 			else {
-				rt_vars.ui8_duty_cycle
-				= 0;
+				rt_vars.ui8_duty_cycle = 0;
 			}		
 */			
             rt_vars.ui8_error_states = p_rx_buffer[19];
