@@ -47,6 +47,8 @@ static Field motorMenus[] =
 	FIELD_EDITABLE_ENUM(_S("Motor voltage", "Motor volt"), &ui_vars.ui8_motor_type, "48V", "36V"),
 	FIELD_EDITABLE_UINT(_S("Motor power max", "Power max"), &ui_vars.ui16_target_max_battery_power, "watts", 25, 2500, .div_digits = 0, .inc_step = 25, .hide_fraction = true),
 	FIELD_EDITABLE_UINT(_S("Motor acceleration", "Motor acc"), &ui_vars.ui8_motor_acceleration_adjustment, "%", 0, 100, .div_digits = 0),
+	FIELD_EDITABLE_UINT(_S("Motor acc after brake", "Acc brake"), &ui_vars.ui8_motor_acceleration_after_braking, "%", 0, 100, .div_digits = 0),
+	FIELD_EDITABLE_UINT(_S("Motor time after brake", "Acc brkTime"), &ui_vars.ui8_motor_acceleration_time_after_braking, "cycles", 0, 80, .div_digits = 0),
 	FIELD_EDITABLE_UINT(_S("Motor deceleration", "Motor dec"), &ui_vars.ui8_motor_deceleration_adjustment, "%", 0, 100, .div_digits = 0),
 	//FIELD_EDITABLE_UINT(_S("Min current ADC step", "MinADCcur"), &ui_vars.ui8_motor_current_min_adc, "amps", 0, 3), // 3 ADC steps = 0.48 amps
 	FIELD_EDITABLE_ENUM(_S("Motor fast stop", "Motor stop"), &ui_vars.ui8_pedal_cadence_fast_stop, "no", "yes"),
@@ -79,6 +81,7 @@ static Field torqueSensorMenus[] =
 	FIELD_EDITABLE_UINT(_S("Torque ADC threshold", "Torque thr"), &ui_vars.ui8_torque_sensor_adc_threshold, "", 5, 100),
 	FIELD_EDITABLE_ENUM(_S("Coast brake", "Coast brk"), &ui_vars.ui8_coast_brake_enable, "disable", "enable"),
 	FIELD_EDITABLE_UINT(_S("Coast brake ADC", "Coast ADC"), &ui_vars.ui8_coast_brake_adc, "", 5, 50),
+	FIELD_EDITABLE_UINT(_S("Torque filter", "Torque filt"), &ui_vars.ui8_torque_sensor_filter, "", 0, 5),
 	FIELD_EDITABLE_ENUM(_S("Calibration", "Calibrat"), &ui_vars.ui8_torque_sensor_calibration_feature_enabled, "disable", "enable"),
 	FIELD_EDITABLE_UINT(_S("Torque adc step", "ADC step"), &ui_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100, "", 30, 80),      
 	FIELD_EDITABLE_UINT(_S("Torque adc offset", "ADCoffset"), &ui_vars.ui16_adc_pedal_torque_offset, "", 0, 250),

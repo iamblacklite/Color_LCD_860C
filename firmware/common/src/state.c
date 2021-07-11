@@ -248,7 +248,7 @@ void rt_send_tx_package(frame_type_t type) {
 		}
 		
 		// lights state & walk assist state & cruise state & throttle/temp option
-		ui8_usart1_tx_buffer[9] = (rt_vars.ui8_lights & 1) << 0 |
+		ui8_usart1_tx_buffer[9] = ((rt_vars.ui8_lights & 1) << 0) |
 			((ui8_walk_assist_state & 1) << 1) |
 			((ui8_cruise_state & 1) << 2) |
 			((ui8_optional_ADC & 3) << 3);
@@ -326,10 +326,19 @@ void rt_send_tx_package(frame_type_t type) {
     // torque sensor ADC threshold assist without rotation
 		ui8_usart1_tx_buffer[22] = rt_vars.ui8_torque_sensor_adc_threshold;
 
+    // torque sensor filter value
+    ui8_usart1_tx_buffer[23] = rt_vars.ui8_torque_sensor_filter;
+
+    // motor acceleration after braking
+    ui8_usart1_tx_buffer[24] = rt_vars.ui8_motor_acceleration_after_braking;
+
+    // time for motor acceleration after braking
+    ui8_usart1_tx_buffer[25] = rt_vars.ui8_motor_acceleration_time_after_braking;
+
     // disable motor current min adc
 		rt_vars.ui8_motor_current_min_adc = 0;
 	
-		crc_len = 24;
+		crc_len = 27;
 		ui8_usart1_tx_buffer[1] = crc_len;
 		break;
 
@@ -833,7 +842,7 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_coast_brake_adc = ui_vars.ui8_coast_brake_adc;
   //rt_vars.ui8_adc_lights_current_offset = ui_vars.ui8_adc_lights_current_offset;
   rt_vars.ui8_throttle_virtual = ui_vars.ui8_throttle_virtual;
-  //rt_vars.ui8_torque_sensor_filter = ui_vars.ui8_torque_sensor_filter;
+  rt_vars.ui8_torque_sensor_filter = ui_vars.ui8_torque_sensor_filter;
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
   rt_vars.ui8_coast_brake_enable = ui_vars.ui8_coast_brake_enable;
   
@@ -847,8 +856,9 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui16_adc_pedal_torque_max = ui_vars.ui16_adc_pedal_torque_max;
   rt_vars.ui8_weight_on_pedal = ui_vars.ui8_weight_on_pedal;
   rt_vars.ui8_config_shortcut_key_enabled = ui_vars.ui8_config_shortcut_key_enabled;
-
   rt_vars.ui16_adc_pedal_torque_calibration = ui_vars.ui16_adc_pedal_torque_calibration;
+  rt_vars.ui8_motor_acceleration_time_after_braking = ui_vars.ui8_motor_acceleration_time_after_braking;
+  rt_vars.ui8_motor_acceleration_after_braking = ui_vars.ui8_motor_acceleration_after_braking;
 }
 
 /// must be called from main() idle loop

@@ -284,7 +284,7 @@ Field custom1 = FIELD_CUSTOMIZABLE_PTR(&ui_vars.field_selectors[0], customizable
 
 
 Field bootHeading = FIELD_DRAWTEXT_RO(_S("OpenSource EBike", "OS-EBike")),
-   bootURL_1 = FIELD_DRAWTEXT_RO(_S("www.github.com/", "Keep pedal")),
+   bootURL_1 = FIELD_DRAWTEXT_RO(_S("250W TSDZ2", "Keep pedal")),
    bootURL_2 = FIELD_DRAWTEXT_RO(_S("OpenSource-EBike-Firmware", "free")),
 
 #ifdef DISPLAY_850C

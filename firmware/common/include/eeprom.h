@@ -156,7 +156,6 @@ typedef struct eeprom_data {
   uint8_t ui8_coast_brake_adc;
   //uint8_t ui8_adc_lights_current_offset;
   uint8_t ui8_throttle_virtual_step;
-  //uint8_t ui8_torque_sensor_filter;
   uint8_t ui8_torque_sensor_adc_threshold;
   //uint8_t ui8_coast_brake_enable;
   
@@ -190,6 +189,9 @@ typedef struct eeprom_data {
   uint16_t ui16_trip_b_max_speed_x10;
   
   uint8_t ui8_motor_deceleration_adjustment;
+  uint8_t ui8_torque_sensor_filter;
+  uint8_t ui8_motor_acceleration_after_braking;
+  uint8_t ui8_motor_acceleration_time_after_braking;
   
 // FIXME align to 32 bit value by end of structure and pack other fields
 } eeprom_data_t;
@@ -315,7 +317,7 @@ void eeprom_init_defaults(void);
 #define DEFAULT_FIELD_WEAKENING                                     1 // 1 enabled
 //#define DEFAULT_ADC_LIGHTS_CURRENT_OFFSET                           1
 #define DEFAULT_THROTTLE_VIRTUAL_STEP                               5
-//#define DEFAULT_TORQUE_SENSOR_FILTER                                20 // 20%
+#define DEFAULT_TORQUE_SENSOR_FILTER                                0
 #define DEFAULT_TORQUE_SENSOR_ADC_THRESHOLD                         20
 #ifndef SW102
 #define DEFAULT_COAST_BRAKE_ENABLE                                  0 // disable
@@ -324,6 +326,8 @@ void eeprom_init_defaults(void);
 #endif
 #define DEFAULT_VALUE_MOTOR_ACCELERATION_ADJUSTMENT					5
 #define DEFAULT_VALUE_MOTOR_DECELERATION_ADJUSTMENT					5
+#define DEFAULT_VALUE_MOTOR_ACCELERATION_AFTER_BRAKING              0
+#define DEFAULT_VALUE_MOTOR_ACCELERATION_TIME_AFTER_BRAKING         0
 #define DEFAULT_VALUE_PEDAL_TORQUE_ADC_STEP_x100					67
 #define DEFAULT_LIGHTS_CONFIGURATION								0
 

@@ -163,7 +163,7 @@ typedef struct rt_vars_struct {
   //uint8_t ui8_adc_lights_current_offset;
   uint16_t ui16_adc_battery_current;
   uint8_t ui8_throttle_virtual;
-  //uint8_t ui8_torque_sensor_filter;
+  uint8_t ui8_torque_sensor_filter;
   uint8_t ui8_torque_sensor_adc_threshold;
   uint8_t ui8_coast_brake_enable;
 
@@ -183,6 +183,8 @@ typedef struct rt_vars_struct {
   uint16_t ui16_adc_pedal_torque_calibration;
   uint8_t ui8_pedal_torque_ADC_step_calc_x100;
   uint8_t ui8_config_shortcut_key_enabled;
+  uint8_t ui8_motor_acceleration_time_after_braking;
+  uint8_t ui8_motor_acceleration_after_braking;
   
   battery_energy_h_km_t battery_energy_h_km;
 } rt_vars_t;
@@ -417,7 +419,7 @@ typedef struct ui_vars_struct {
   uint16_t ui16_adc_battery_current;
   uint8_t ui8_throttle_virtual;
   uint8_t ui8_throttle_virtual_step;
-  //uint8_t ui8_torque_sensor_filter;
+  uint8_t ui8_torque_sensor_filter;
   uint8_t ui8_torque_sensor_adc_threshold;
   uint8_t ui8_coast_brake_enable;
   
@@ -437,6 +439,8 @@ typedef struct ui_vars_struct {
   uint16_t ui16_adc_pedal_torque_calibration;
   uint8_t ui8_pedal_torque_ADC_step_calc_x100;
   uint8_t ui8_config_shortcut_key_enabled;
+  uint8_t ui8_motor_acceleration_time_after_braking;
+  uint8_t ui8_motor_acceleration_after_braking;
   
 } ui_vars_t;
 
