@@ -10,6 +10,7 @@
 #define _RTC_H_
 
 #include "stdio.h"
+#include "stm32f10x_rtc.h"
 
 typedef struct _rtc_time {
 	uint8_t ui8_hours;

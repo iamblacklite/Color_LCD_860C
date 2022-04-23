@@ -22,9 +22,6 @@
 #include "adc.h"
 #include "timer.h"
 #include <stdlib.h>
-#ifdef SW102
-#include "ble_services.h"
-#endif
 
 //#define DEBUG_TSDZ2_FIRMWARE
 
@@ -34,6 +31,7 @@ typedef enum {
   FRAME_TYPE_PERIODIC = 2,
   FRAME_TYPE_CONFIGURATIONS = 3,
   FRAME_TYPE_FIRMWARE_VERSION = 4,
+  FRAME_TYPE_HALL_CALIBRATION = 5,
 } frame_type_t;
 
 
@@ -171,7 +169,6 @@ void rt_send_tx_package(frame_type_t type) {
   uint8_t crc_len = 3; // minimun is 3
   uint8_t *ui8_usart1_tx_buffer = uart_get_tx_buffer();
   uint8_t ui8_temp;
-  uint16_t ui16_temp;
   /************************************************************************************************/
   // send tx package
   // start up byte
@@ -300,45 +297,56 @@ void rt_send_tx_package(frame_type_t type) {
 		// motor acceleration adjustment
 		ui8_usart1_tx_buffer[13] = rt_vars.ui8_motor_acceleration_adjustment;
 		
-		// target speed for cruise
+		// motor decceleration adjustment
 		ui8_usart1_tx_buffer[14] = rt_vars.ui8_motor_deceleration_adjustment;
-			
-		// pedal torque adc step x100 to calculate human power
-		rt_vars.ui8_pedal_torque_ADC_step_calc_x100 = (rt_vars.ui8_weight_on_pedal * 167)
-			/ (rt_vars.ui16_adc_pedal_torque_calibration - rt_vars.ui16_adc_pedal_torque_offset);
 		
-		// torque sensor offset & max for calibration
-		ui8_usart1_tx_buffer[15] = (uint8_t) (rt_vars.ui16_adc_pedal_torque_offset & 0xff);
-		ui8_usart1_tx_buffer[16] = (uint8_t) (rt_vars.ui16_adc_pedal_torque_offset >> 8);
-		ui16_temp = (rt_vars.ui16_adc_pedal_torque_max - rt_vars.ui16_adc_pedal_torque_offset);
-		ui8_usart1_tx_buffer[17] = (uint8_t) (ui16_temp  & 0xff);
-		ui8_usart1_tx_buffer[18] = (uint8_t) (ui16_temp >> 8);
-		  
+		// torque sensor smooth min
+		ui8_usart1_tx_buffer[15] = rt_vars.ui8_adc_pedal_torque_smooth_min;
+		
+		// torque sensor smooth max
+		ui8_usart1_tx_buffer[16] = rt_vars.ui8_adc_pedal_torque_smooth_max;
+
     // coaster brake threshold
-		ui8_usart1_tx_buffer[19] = rt_vars.ui8_coast_brake_adc;
+		ui8_usart1_tx_buffer[17] = rt_vars.ui8_coast_brake_adc;
 
 		// lights configuration
-		ui8_usart1_tx_buffer[20] = rt_vars.ui8_lights_configuration;
+		ui8_usart1_tx_buffer[18] = rt_vars.ui8_lights_configuration;
 
     // torque sensor adc step (default 67)
-		ui8_usart1_tx_buffer[21] = rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100;
+		ui8_usart1_tx_buffer[19] = rt_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100;
 
     // torque sensor ADC threshold assist without rotation
-		ui8_usart1_tx_buffer[22] = rt_vars.ui8_torque_sensor_adc_threshold;
-
-    // torque sensor filter value
-    ui8_usart1_tx_buffer[23] = rt_vars.ui8_torque_sensor_filter;
+		ui8_usart1_tx_buffer[20] = rt_vars.ui8_torque_sensor_adc_threshold;
 
     // motor acceleration after braking
-    ui8_usart1_tx_buffer[24] = rt_vars.ui8_motor_acceleration_after_braking;
+    ui8_usart1_tx_buffer[21] = rt_vars.ui8_motor_acceleration_after_braking;
 
     // time for motor acceleration after braking
-    ui8_usart1_tx_buffer[25] = rt_vars.ui8_motor_acceleration_time_after_braking;
+    ui8_usart1_tx_buffer[22] = rt_vars.ui8_motor_acceleration_time_after_braking;
 
     // disable motor current min adc
 		rt_vars.ui8_motor_current_min_adc = 0;
-	
-		crc_len = 27;
+
+    // hall calibration enabled
+    ui8_usart1_tx_buffer[23] = rt_vars.ui8_hall_calibration_enabled;
+
+    // hall reference angles
+    ui8_usart1_tx_buffer[24] = rt_vars.ui8_hall_ref_angles[0];
+    ui8_usart1_tx_buffer[25] = rt_vars.ui8_hall_ref_angles[1];
+    ui8_usart1_tx_buffer[26] = rt_vars.ui8_hall_ref_angles[2];
+    ui8_usart1_tx_buffer[27] = rt_vars.ui8_hall_ref_angles[3];
+    ui8_usart1_tx_buffer[28] = rt_vars.ui8_hall_ref_angles[4];
+    ui8_usart1_tx_buffer[29] = rt_vars.ui8_hall_ref_angles[5];
+
+    // hall counter offsets
+    ui8_usart1_tx_buffer[30] = rt_vars.ui8_hall_counter_offsets[0];
+    ui8_usart1_tx_buffer[31] = rt_vars.ui8_hall_counter_offsets[1];
+    ui8_usart1_tx_buffer[32] = rt_vars.ui8_hall_counter_offsets[2];
+    ui8_usart1_tx_buffer[33] = rt_vars.ui8_hall_counter_offsets[3];
+    ui8_usart1_tx_buffer[34] = rt_vars.ui8_hall_counter_offsets[4];
+    ui8_usart1_tx_buffer[35] = rt_vars.ui8_hall_counter_offsets[5];
+    
+		crc_len = 37;
 		ui8_usart1_tx_buffer[1] = crc_len;
 		break;
 
@@ -346,6 +354,14 @@ void rt_send_tx_package(frame_type_t type) {
 	case FRAME_TYPE_FIRMWARE_VERSION:
 	    // nothing to add to the package
 	    break;
+
+  case FRAME_TYPE_HALL_CALIBRATION:
+    ui8_usart1_tx_buffer[3] = rt_vars.ui8_hall_calibration_mode;
+    ui8_usart1_tx_buffer[4] = rt_vars.ui8_hall_calibration_pwm;
+    ui8_usart1_tx_buffer[5] = rt_vars.ui8_hall_calibration_test_offset;
+    crc_len = 7;
+		ui8_usart1_tx_buffer[1] = crc_len;
+		break;
 
 	default:
 	    break;
@@ -698,19 +714,11 @@ void rt_calc_battery_soc(void) {
 }
 
 void rt_processing_stop(void) {
-#ifndef SW102
   Display850C_rt_processing_stop();
-#else
-  SW102_rt_processing_stop();
-#endif
 }
 
 void rt_processing_start(void) {
-#ifndef SW102
   Display850C_rt_processing_start();
-#else
-  SW102_rt_processing_start();
-#endif
 }
 
 /**
@@ -724,7 +732,6 @@ void copy_rt_to_ui_vars(void) {
 	ui_vars.ui8_motor_current_x5 = rt_vars.ui8_motor_current_x5;
 	ui_vars.ui8_throttle = rt_vars.ui8_throttle;
 	ui_vars.ui16_adc_pedal_torque_sensor = rt_vars.ui16_adc_pedal_torque_sensor;
-	//ui_vars.ui8_pedal_weight_with_offset = rt_vars.ui8_pedal_weight_with_offset;
 	ui_vars.ui8_pedal_weight = rt_vars.ui8_pedal_weight;
 	ui_vars.ui8_duty_cycle = rt_vars.ui8_duty_cycle;
 	ui_vars.ui8_error_states = rt_vars.ui8_error_states;
@@ -757,10 +764,8 @@ void copy_rt_to_ui_vars(void) {
 	ui_vars.ui16_adc_pedal_torque_delta_boost = rt_vars.ui16_adc_pedal_torque_delta_boost;
 	ui_vars.ui8_pedal_torque_ADC_step_calc_x100 = rt_vars.ui8_pedal_torque_ADC_step_calc_x100;
 
-#ifndef SW102
   ui_vars.ui32_trip_a_last_update_time = rt_vars.ui32_trip_a_last_update_time;
   ui_vars.ui32_trip_b_last_update_time = rt_vars.ui32_trip_b_last_update_time;
-#endif
 
   ui_vars.ui32_trip_a_distance_x1000 = rt_vars.ui32_trip_a_distance_x1000;
   ui_vars.ui32_trip_a_distance_x100 = rt_vars.ui32_trip_a_distance_x1000 / 10;  
@@ -777,8 +782,11 @@ void copy_rt_to_ui_vars(void) {
   ui_vars.ui32_odometer_x10 = rt_vars.ui32_odometer_x10;
   ui_vars.battery_energy_km_value_x100 = rt_vars.battery_energy_h_km.ui32_value_x100;
   ui_vars.ui16_adc_battery_current = rt_vars.ui16_adc_battery_current;
+  for (uint8_t i = 0; i < 6; i++) {
+    ui_vars.hall_counter[i] = rt_vars.hall_counter[i];
+  }
 
-    rt_vars.ui32_wh_x10_100_percent = ui_vars.ui32_wh_x10_100_percent;
+  rt_vars.ui32_wh_x10_100_percent = ui_vars.ui32_wh_x10_100_percent;
 	rt_vars.ui32_wh_x10_offset = ui_vars.ui32_wh_x10_offset;
 	rt_vars.ui16_battery_pack_resistance_x1000 = ui_vars.ui16_battery_pack_resistance_x1000;
 	rt_vars.ui8_riding_mode = ui_vars.ui8_riding_mode;
@@ -798,29 +806,15 @@ void copy_rt_to_ui_vars(void) {
 	rt_vars.ui8_motor_max_current = ui_vars.ui8_motor_max_current;
 	rt_vars.ui8_motor_current_min_adc = ui_vars.ui8_motor_current_min_adc;
 	rt_vars.ui8_field_weakening = ui_vars.ui8_field_weakening;
-	//rt_vars.ui8_ramp_up_amps_per_second_x10 =
-	//		ui_vars.ui8_ramp_up_amps_per_second_x10;
 	rt_vars.ui8_target_max_battery_power_div25 = ui_vars.ui8_target_max_battery_power_div25;
 	rt_vars.ui16_battery_low_voltage_cut_off_x10 =
 			ui_vars.ui16_battery_low_voltage_cut_off_x10;
 	rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
 	rt_vars.ui8_wheel_max_speed = (uint8_t) (ui_vars.ui16_wheel_max_speed_x10 / 10);
 	rt_vars.ui8_motor_type = ui_vars.ui8_motor_type;
-	//rt_vars.ui8_motor_current_control_mode = ui_vars.ui8_motor_current_control_mode;
 	rt_vars.ui8_motor_assistance_startup_without_pedal_rotation =
 			ui_vars.ui8_motor_assistance_startup_without_pedal_rotation;
 	rt_vars.ui8_optional_ADC_function =	ui_vars.ui8_optional_ADC_function;
-	//rt_vars.ui8_startup_motor_power_boost_always =
-	//		ui_vars.ui8_startup_motor_power_boost_always;
-	//rt_vars.ui8_startup_motor_power_boost_limit_power =
-	//		ui_vars.ui8_startup_motor_power_boost_limit_power;
-	//rt_vars.ui8_startup_motor_power_boost_time =
-	//		ui_vars.ui8_startup_motor_power_boost_time;
-  //for (uint8_t i = 0; i < ASSIST_LEVEL_NUMBER; i++) { // bug?
-  //  rt_vars.ui8_startup_motor_power_boost_factor[i] = ui_vars.ui8_startup_motor_power_boost_factor[i];
-  //}
-	//rt_vars.ui8_startup_motor_power_boost_fade_time =
-	//		ui_vars.ui8_startup_motor_power_boost_fade_time;
 	rt_vars.ui8_startup_motor_power_boost_feature_enabled =
 			ui_vars.ui8_startup_motor_power_boost_feature_enabled;
 	rt_vars.ui8_motor_temperature_min_value_to_limit =
@@ -829,7 +823,6 @@ void copy_rt_to_ui_vars(void) {
 			ui_vars.ui8_motor_temperature_max_value_to_limit;
 
   rt_vars.ui8_torque_sensor_calibration_feature_enabled = ui_vars.ui8_torque_sensor_calibration_feature_enabled;
-  //rt_vars.ui8_torque_sensor_calibration_pedal_ground = ui_vars.ui8_torque_sensor_calibration_pedal_ground;
   rt_vars.ui8_assist_whit_error_enabled = ui_vars.ui8_assist_whit_error_enabled;
   
   rt_vars.ui8_street_mode_enabled = ui_vars.ui8_street_mode_enabled;
@@ -840,7 +833,6 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_cruise_feature_enabled = ui_vars.ui8_cruise_feature_enabled;
   rt_vars.ui8_pedal_cadence_fast_stop = ui_vars.ui8_pedal_cadence_fast_stop;
   rt_vars.ui8_coast_brake_adc = ui_vars.ui8_coast_brake_adc;
-  //rt_vars.ui8_adc_lights_current_offset = ui_vars.ui8_adc_lights_current_offset;
   rt_vars.ui8_throttle_virtual = ui_vars.ui8_throttle_virtual;
   rt_vars.ui8_torque_sensor_filter = ui_vars.ui8_torque_sensor_filter;
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;
@@ -852,13 +844,21 @@ void copy_rt_to_ui_vars(void) {
   rt_vars.ui8_lights_configuration = ui_vars.ui8_lights_configuration;
   rt_vars.ui16_startup_boost_torque_factor = ui_vars.ui16_startup_boost_torque_factor;
   rt_vars.ui8_startup_boost_cadence_step = ui_vars.ui8_startup_boost_cadence_step;
-  rt_vars.ui16_adc_pedal_torque_offset = ui_vars.ui16_adc_pedal_torque_offset;
-  rt_vars.ui16_adc_pedal_torque_max = ui_vars.ui16_adc_pedal_torque_max;
-  rt_vars.ui8_weight_on_pedal = ui_vars.ui8_weight_on_pedal;
+  rt_vars.ui8_adc_pedal_torque_smooth_min = ui_vars.ui8_adc_pedal_torque_smooth_min;
+  rt_vars.ui8_adc_pedal_torque_smooth_max = ui_vars.ui8_adc_pedal_torque_smooth_max;
   rt_vars.ui8_config_shortcut_key_enabled = ui_vars.ui8_config_shortcut_key_enabled;
-  rt_vars.ui16_adc_pedal_torque_calibration = ui_vars.ui16_adc_pedal_torque_calibration;
   rt_vars.ui8_motor_acceleration_time_after_braking = ui_vars.ui8_motor_acceleration_time_after_braking;
   rt_vars.ui8_motor_acceleration_after_braking = ui_vars.ui8_motor_acceleration_after_braking;
+  rt_vars.ui8_hall_calibration_mode = ui_vars.ui8_hall_calibration_mode;
+  rt_vars.ui8_hall_calibration_pwm = ui_vars.ui8_hall_calibration_pwm;
+  rt_vars.ui8_hall_calibration_test_offset = ui_vars.ui8_hall_calibration_test_offset;
+  rt_vars.ui8_hall_calibration_enabled = ui_vars.ui8_hall_calibration_enabled;
+  for (uint8_t i = 0; i < 6; i++) {
+    rt_vars.ui8_hall_ref_angles[i] = ui_vars.ui8_hall_ref_angles[i];
+  }
+  for (uint8_t i = 0; i < 6; i++) {
+    rt_vars.ui8_hall_counter_offsets[i] = ui_vars.ui8_hall_counter_offsets[i];
+  }
 }
 
 /// must be called from main() idle loop
@@ -890,7 +890,6 @@ void automatic_power_off_management(void) {
 void communications(void) {
   frame_type_t ui8_frame;
   uint8_t process_frame = 0;
-  uint16_t ui16_temp;
 
   const uint8_t *p_rx_buffer = uart_get_rx_buffer_rdy();
 
@@ -922,6 +921,8 @@ void communications(void) {
         case MOTOR_INIT_READY:
             process_frame = 1;
           break;
+        
+        default:
       }
 
       if (process_frame) {
@@ -971,6 +972,19 @@ void communications(void) {
             g_tsdz2_firmware_version.patch = p_rx_buffer[6];
             g_motor_init_state = MOTOR_INIT_GOT_MOTOR_FIRMWARE_VERSION;
             break;
+
+          case FRAME_TYPE_HALL_CALIBRATION:
+            rt_vars.hall_counter[0] = ((15 * rt_vars.hall_counter[0]) + (((uint16_t) p_rx_buffer[3]) | ((uint16_t) p_rx_buffer[4] << 8))) / 16;
+            rt_vars.hall_counter[1] = ((15 * rt_vars.hall_counter[1]) + (((uint16_t) p_rx_buffer[5]) | ((uint16_t) p_rx_buffer[6] << 8))) / 16;
+            rt_vars.hall_counter[2] = ((15 * rt_vars.hall_counter[2]) + (((uint16_t) p_rx_buffer[7]) | ((uint16_t) p_rx_buffer[8] << 8))) / 16;
+            rt_vars.hall_counter[3] = ((15 * rt_vars.hall_counter[3]) + (((uint16_t) p_rx_buffer[9]) | ((uint16_t) p_rx_buffer[10] << 8))) / 16;
+            rt_vars.hall_counter[4] = ((15 * rt_vars.hall_counter[4]) + (((uint16_t) p_rx_buffer[11]) | ((uint16_t) p_rx_buffer[12] << 8))) / 16;
+            rt_vars.hall_counter[5] = ((15 * rt_vars.hall_counter[5]) + (((uint16_t) p_rx_buffer[13]) | ((uint16_t) p_rx_buffer[14] << 8))) / 16;
+            rt_vars.ui16_motor_speed_erps = ((uint16_t) p_rx_buffer[15]) | ((uint16_t) p_rx_buffer[16] << 8);
+            break;
+          
+          default:
+
         }
       }
     }
@@ -981,18 +995,19 @@ void communications(void) {
       ui8_m_usart1_received_first_package = 10;
   }
 
-  if (g_motor_init_state == MOTOR_INIT_READY)
-    rt_send_tx_package(FRAME_TYPE_PERIODIC);
+  if (g_motor_init_state == MOTOR_INIT_READY) {
+    if(rt_vars.ui8_hall_calibration_mode) {
+      rt_send_tx_package(FRAME_TYPE_HALL_CALIBRATION);
+    } else {
+      rt_send_tx_package(FRAME_TYPE_PERIODIC);
+    }
+  }  
 }
 
 // Note: this called from ISR context every 100ms
 void rt_processing(void)
 {
   communications();
-
-#ifdef SW102
-  send_bluetooth(&rt_vars);
-#endif
 
   // called here because this state machine for motor_init should run every 100ms
   // montor init processing must be done when exiting the configurations menu
@@ -1061,11 +1076,7 @@ static void motor_init(void) {
       (g_motor_init_state != MOTOR_INIT_ERROR_FIRMWARE_VERSION) &&
       (g_motor_init_state != MOTOR_INIT_READY) &&
       (g_motor_init_state != MOTOR_INIT_SIMULATING)
-#ifdef DEBUG_TSDZ2_FIRMWARE
-      && (buttons_get_onoff_state() == 0))
-#else
       )
-#endif
   {
     if (ui8_once) {
       ui8_once = 0;
@@ -1111,8 +1122,8 @@ static void motor_init(void) {
         break;
 
       case MOTOR_INIT_GOT_MOTOR_FIRMWARE_VERSION:
-        if (g_tsdz2_firmware_version.major == atoi(TSDZ2_FIRMWARE_MAJOR) &&
-            g_tsdz2_firmware_version.minor == atoi(TSDZ2_FIRMWARE_MINOR)) {
+        if ((g_tsdz2_firmware_version.major == atoi(TSDZ2_FIRMWARE_MAJOR)) &&
+            (g_tsdz2_firmware_version.minor == atoi(TSDZ2_FIRMWARE_MINOR))) {
 
             g_motor_init_state = MOTOR_INIT_SET_CONFIGURATIONS;
             // not break here to follow for next case
@@ -1177,6 +1188,7 @@ static void motor_init(void) {
             }
             break;
         }
+      default:  
     }
   }
 }

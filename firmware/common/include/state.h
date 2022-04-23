@@ -56,7 +56,6 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_adc_throttle;
 	uint8_t ui8_throttle;
 	uint16_t ui16_adc_pedal_torque_sensor;
-	uint8_t ui8_pedal_weight_with_offset; // used in firmware/SW102/src/sw102/ble_service.c
 	uint8_t ui8_pedal_weight;
 	uint16_t ui16_pedal_power_x10;
 	uint8_t ui8_duty_cycle;
@@ -93,50 +92,37 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_motor_max_current;
 	uint8_t ui8_motor_current_min_adc;
 	uint8_t ui8_field_weakening;
-	//uint8_t ui8_ramp_up_amps_per_second_x10;
 	uint16_t ui16_battery_low_voltage_cut_off_x10;
 	uint16_t ui16_battery_voltage_reset_wh_counter_x10;
 	uint16_t ui16_battery_pack_resistance_x1000;
 	uint8_t ui8_motor_type;
-	//uint8_t ui8_motor_current_control_mode;
 	uint8_t ui8_motor_assistance_startup_without_pedal_rotation;
 	uint8_t ui8_assist_level_factor[4][ASSIST_LEVEL_NUMBER];
 	uint8_t ui8_walk_assist_feature_enabled;
 	uint8_t ui8_cruise_feature_enabled;
 	uint8_t ui8_walk_assist_level_factor[ASSIST_LEVEL_NUMBER];
 	uint8_t ui8_startup_motor_power_boost_feature_enabled;
-	//uint8_t ui8_startup_motor_power_boost_always;
-	//uint8_t ui8_startup_motor_power_boost_limit_power;
-	//uint8_t ui8_startup_motor_power_boost_time;
-	//uint8_t ui8_startup_motor_power_boost_fade_time;
-	//uint8_t ui8_startup_motor_power_boost_factor[ASSIST_LEVEL_NUMBER];
 	uint8_t ui8_optional_ADC_function;
 	uint8_t ui8_motor_temperature_min_value_to_limit;
 	uint8_t ui8_motor_temperature_max_value_to_limit;
 	uint8_t ui8_lcd_backlight_on_brightness;
 	uint8_t ui8_lcd_backlight_off_brightness;
-	//uint8_t ui8_offroad_feature_enabled;
-	//uint8_t ui8_offroad_enabled_on_startup;
-	//uint8_t ui8_offroad_speed_limit;
-	//uint8_t ui8_offroad_power_limit_enabled;
-	//uint8_t ui8_offroad_power_limit_div25;
 	uint32_t ui32_odometer_x10;
 
-#ifndef SW102
 	uint8_t  ui8_trip_a_auto_reset;
 	uint16_t ui16_trip_a_auto_reset_hours;
 	uint32_t ui32_trip_a_last_update_time;
-#endif
+
 	uint32_t ui32_trip_a_distance_x1000;
 	uint32_t ui32_trip_a_time;
 	uint16_t ui16_trip_a_avg_speed_x10;
 	uint16_t ui16_trip_a_max_speed_x10;
 
-#ifndef SW102
+
 	uint8_t  ui8_trip_b_auto_reset;
 	uint16_t ui16_trip_b_auto_reset_hours;
 	uint32_t ui32_trip_b_last_update_time;
-#endif
+
 	uint32_t ui32_trip_b_distance_x1000;
 	uint32_t ui32_trip_b_time;
   	uint16_t ui16_trip_b_avg_speed_x10;
@@ -145,48 +131,48 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_lights;
 	uint8_t ui8_braking;
 	uint8_t ui8_walk_assist;
-	//uint8_t ui8_offroad_mode;
 
-  uint8_t ui8_torque_sensor_calibration_feature_enabled;
-  //uint8_t ui8_torque_sensor_calibration_pedal_ground;
-  //uint16_t ui16_torque_sensor_calibration_table_left[8][2];
-  //uint16_t ui16_torque_sensor_calibration_table_right[8][2];
+	uint8_t ui8_torque_sensor_calibration_feature_enabled;
 
-  uint8_t ui8_street_mode_enabled;
-  uint8_t ui8_street_mode_speed_limit;
-  uint8_t ui8_street_mode_power_limit_div25;
-  uint8_t ui8_street_mode_throttle_enabled;
-  uint8_t ui8_street_mode_cruise_enabled;
+	uint8_t ui8_street_mode_enabled;
+	uint8_t ui8_street_mode_speed_limit;
+	uint8_t ui8_street_mode_power_limit_div25;
+	uint8_t ui8_street_mode_throttle_enabled;
+	uint8_t ui8_street_mode_cruise_enabled;
 
-  uint8_t ui8_pedal_cadence_fast_stop;
-  uint8_t ui8_coast_brake_adc;
-  //uint8_t ui8_adc_lights_current_offset;
-  uint16_t ui16_adc_battery_current;
-  uint8_t ui8_throttle_virtual;
-  uint8_t ui8_torque_sensor_filter;
-  uint8_t ui8_torque_sensor_adc_threshold;
-  uint8_t ui8_coast_brake_enable;
+	uint8_t ui8_pedal_cadence_fast_stop;
+	uint8_t ui8_coast_brake_adc;
+	uint16_t ui16_adc_battery_current;
+	uint8_t ui8_throttle_virtual;
+	uint8_t ui8_torque_sensor_filter;
+	uint8_t ui8_torque_sensor_adc_threshold;
+	uint8_t ui8_coast_brake_enable;
 
-  uint8_t ui8_motor_acceleration_adjustment;
-  uint8_t ui8_motor_deceleration_adjustment;
-  uint8_t ui8_pedal_torque_per_10_bit_ADC_step_x100;
-  uint8_t ui8_lights_configuration;
-  uint8_t ui8_assist_whit_error_enabled;
-  uint16_t ui16_startup_boost_torque_factor;
-  uint8_t ui8_startup_boost_cadence_step;
-  uint8_t ui8_riding_mode;
-  uint16_t ui16_adc_pedal_torque_delta;
-  uint16_t ui16_adc_pedal_torque_delta_boost;
-  uint16_t ui16_adc_pedal_torque_offset;
-  uint16_t ui16_adc_pedal_torque_max;
-  uint8_t ui8_weight_on_pedal;
-  uint16_t ui16_adc_pedal_torque_calibration;
-  uint8_t ui8_pedal_torque_ADC_step_calc_x100;
-  uint8_t ui8_config_shortcut_key_enabled;
-  uint8_t ui8_motor_acceleration_time_after_braking;
-  uint8_t ui8_motor_acceleration_after_braking;
-  
-  battery_energy_h_km_t battery_energy_h_km;
+	uint8_t ui8_motor_acceleration_adjustment;
+	uint8_t ui8_motor_deceleration_adjustment;
+	uint8_t ui8_pedal_torque_per_10_bit_ADC_step_x100;
+	uint8_t ui8_lights_configuration;
+	uint8_t ui8_assist_whit_error_enabled;
+	uint16_t ui16_startup_boost_torque_factor;
+	uint8_t ui8_startup_boost_cadence_step;
+	uint8_t ui8_riding_mode;
+	uint16_t ui16_adc_pedal_torque_delta;
+	uint16_t ui16_adc_pedal_torque_delta_boost;
+	uint16_t ui8_adc_pedal_torque_smooth_min;
+	uint16_t ui8_adc_pedal_torque_smooth_max;
+	uint8_t ui8_pedal_torque_ADC_step_calc_x100;
+	uint8_t ui8_config_shortcut_key_enabled;
+	uint8_t ui8_motor_acceleration_time_after_braking;
+	uint8_t ui8_motor_acceleration_after_braking;
+	uint8_t ui8_hall_calibration_mode;
+	uint8_t ui8_hall_calibration_pwm;
+	uint8_t ui8_hall_calibration_test_offset;
+	uint8_t ui8_hall_calibration_enabled;
+	uint16_t hall_counter[6];
+	uint8_t ui8_hall_ref_angles[6];
+	uint8_t ui8_hall_counter_offsets[6];
+	
+	battery_energy_h_km_t battery_energy_h_km;
 } rt_vars_t;
 
 /* Selector positions for customizable fields
@@ -195,11 +181,8 @@ typedef struct rt_vars_struct {
  * 5-8  are the boxes above the graph, mainscreen2 on 850C
  * 9-12 are the boxes above the graph, mainscreen2 on 850C
  */
-#ifdef SW102
-#define NUM_CUSTOMIZABLE_FIELDS 6
-#else
+
 #define NUM_CUSTOMIZABLE_FIELDS 12
-#endif
 
 typedef struct ui_vars_struct {
 	uint16_t ui16_adc_battery_voltage;
@@ -209,7 +192,6 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_adc_throttle;
 	uint8_t ui8_throttle;
 	uint16_t ui16_adc_pedal_torque_sensor;
-	uint8_t ui8_pedal_weight_with_offset;  // used in firmware/SW102/src/sw102/ble_service.c
 	uint8_t ui8_pedal_weight;
 	uint8_t ui8_duty_cycle;
 	uint8_t ui8_error_states;
@@ -249,53 +231,37 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_motor_max_current;
 	uint8_t ui8_motor_current_min_adc;
 	uint8_t ui8_field_weakening;
-	//uint8_t ui8_ramp_up_amps_per_second_x10;
 	uint16_t ui16_battery_low_voltage_cut_off_x10;
 	uint16_t ui16_battery_voltage_reset_wh_counter_x10;
 	uint16_t ui16_battery_pack_resistance_x1000;
 	uint16_t ui16_battery_pack_resistance_estimated_x1000;
 	uint8_t ui8_motor_type;
-	//uint8_t ui8_motor_current_control_mode;
 	uint8_t ui8_motor_assistance_startup_without_pedal_rotation;
 	uint8_t ui8_assist_level_factor[4][ASSIST_LEVEL_NUMBER];
 	uint8_t ui8_walk_assist_feature_enabled;
 	uint8_t ui8_cruise_feature_enabled;
 	uint8_t ui8_walk_assist_level_factor[ASSIST_LEVEL_NUMBER];
 	uint8_t ui8_startup_motor_power_boost_feature_enabled;
-	//uint8_t ui8_startup_motor_power_boost_always;
-	//uint8_t ui8_startup_motor_power_boost_limit_power;
-	//uint8_t ui8_startup_motor_power_boost_time;
-	//uint8_t ui8_startup_motor_power_boost_fade_time;
-	//uint8_t ui8_startup_motor_power_boost_factor[ASSIST_LEVEL_NUMBER];
 	uint8_t ui8_optional_ADC_function;
 	uint8_t ui8_motor_temperature_min_value_to_limit;
 	uint8_t ui8_motor_temperature_max_value_to_limit;
 	uint8_t ui8_lcd_power_off_time_minutes;
 	uint8_t ui8_lcd_backlight_on_brightness;
 	uint8_t ui8_lcd_backlight_off_brightness;
-	//uint8_t ui8_offroad_feature_enabled;
-	//uint8_t ui8_offroad_enabled_on_startup;
-	//uint8_t ui8_offroad_speed_limit;
-	//uint8_t ui8_offroad_power_limit_enabled;
-	//uint8_t ui8_offroad_power_limit_div25;
 	uint32_t ui32_odometer_x10;
 
-#ifndef SW102
 	uint8_t  ui8_trip_a_auto_reset;
 	uint16_t ui16_trip_a_auto_reset_hours;
 	uint32_t ui32_trip_a_last_update_time;
-#endif
 	uint32_t ui32_trip_a_distance_x1000;
 	uint32_t ui32_trip_a_distance_x100;
 	uint32_t ui32_trip_a_time;
 	uint16_t ui16_trip_a_avg_speed_x10;
 	uint16_t ui16_trip_a_max_speed_x10;
 
-#ifndef SW102
 	uint8_t  ui8_trip_b_auto_reset;
 	uint16_t ui16_trip_b_auto_reset_hours;
 	uint32_t ui32_trip_b_last_update_time;
-#endif
 	uint32_t ui32_trip_b_distance_x1000;
 	uint32_t ui32_trip_b_distance_x100;
 	uint32_t ui32_trip_b_time;
@@ -307,13 +273,9 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_lights;
 	uint8_t ui8_braking;
 	uint8_t ui8_walk_assist;
-	//uint8_t ui8_offroad_mode;
 	uint8_t ui8_buttons_up_down_invert;
 
 	uint8_t ui8_torque_sensor_calibration_feature_enabled;
-	//uint8_t ui8_torque_sensor_calibration_pedal_ground;
-	//uint16_t ui16_torque_sensor_calibration_table_left[8][2];
-	//uint16_t ui16_torque_sensor_calibration_table_right[8][2];
 
 	uint8_t field_selectors[NUM_CUSTOMIZABLE_FIELDS]; // this array is opaque to the app, but the screen layer uses it to store which field is being displayed (it is stored to EEPROM)
 	uint8_t graphs_field_selectors[3]; // 3 screen main pages
@@ -328,119 +290,123 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_street_mode_cruise_enabled;
 	uint8_t ui8_street_mode_hotkey_enabled;
 
-  uint16_t var_speed_graph_auto_max_min;
-  uint16_t var_speed_graph_max_x10;
-  uint16_t var_speed_graph_min_x10;
-  uint16_t var_speed_auto_thresholds;
-  uint16_t var_speed_threshold_max_x10;
-  uint16_t var_speed_threshold_min_x10;
+	uint16_t var_speed_graph_auto_max_min;
+  	uint16_t var_speed_graph_max_x10;
+  	uint16_t var_speed_graph_min_x10;
+  	uint16_t var_speed_auto_thresholds;
+  	uint16_t var_speed_threshold_max_x10;
+  	uint16_t var_speed_threshold_min_x10;
 
-  uint32_t var_trip_distance_graph_auto_max_min_x10;
-  uint32_t var_trip_distance_graph_max_x10;
-  uint32_t var_trip_distance_graph_min_x10;
+	uint32_t var_trip_distance_graph_auto_max_min_x10;
+  	uint32_t var_trip_distance_graph_max_x10;
+  	uint32_t var_trip_distance_graph_min_x10;
 
-  uint32_t var_odo_graph_auto_max_min;
-  uint32_t var_odo_graph_max;
-  uint32_t var_odo_graph_min;
+	uint32_t var_odo_graph_auto_max_min;
+  	uint32_t var_odo_graph_max;
+	uint32_t var_odo_graph_min;
 
-  uint8_t var_cadence_graph_auto_max_min;
-  uint8_t var_cadence_graph_max;
-  uint8_t var_cadence_graph_min;
-  uint8_t var_cadence_auto_thresholds;
-  uint8_t var_cadence_threshold_max;
-  uint8_t var_cadence_threshold_min;
+  	uint8_t var_cadence_graph_auto_max_min;
+  	uint8_t var_cadence_graph_max;
+  	uint8_t var_cadence_graph_min;
+  	uint8_t var_cadence_auto_thresholds;
+  	uint8_t var_cadence_threshold_max;
+  	uint8_t var_cadence_threshold_min;
 
-  uint8_t var_human_power_graph_auto_max_min;
-  uint8_t var_human_power_graph_max;
-  uint8_t var_human_power_graph_min;
-  uint8_t var_human_power_auto_thresholds;
-  uint8_t var_human_power_threshold_max;
-  uint8_t var_human_power_threshold_min;
+	uint8_t var_human_power_graph_auto_max_min;
+	uint8_t var_human_power_graph_max;
+	uint8_t var_human_power_graph_min;
+	uint8_t var_human_power_auto_thresholds;
+	uint8_t var_human_power_threshold_max;
+	uint8_t var_human_power_threshold_min;
 
-  uint8_t var_battery_power_graph_auto_max_min;
-  uint8_t var_battery_power_graph_max;
-  uint8_t var_battery_power_graph_min;
-  uint8_t var_battery_power_auto_thresholds;
-  uint8_t var_battery_power_threshold_max;
-  uint8_t var_battery_power_threshold_min;
+	uint8_t var_battery_power_graph_auto_max_min;
+	uint8_t var_battery_power_graph_max;
+	uint8_t var_battery_power_graph_min;
+	uint8_t var_battery_power_auto_thresholds;
+	uint8_t var_battery_power_threshold_max;
+	uint8_t var_battery_power_threshold_min;
 
-  uint8_t var_battery_voltage_graph_auto_max_min;
-  uint8_t var_battery_voltage_graph_max;
-  uint8_t var_battery_voltage_graph_min;
-  uint8_t var_battery_voltage_auto_thresholds;
-  uint8_t var_battery_voltage_threshold_max;
-  uint8_t var_battery_voltage_threshold_min;
+	uint8_t var_battery_voltage_graph_auto_max_min;
+	uint8_t var_battery_voltage_graph_max;
+	uint8_t var_battery_voltage_graph_min;
+	uint8_t var_battery_voltage_auto_thresholds;
+	uint8_t var_battery_voltage_threshold_max;
+	uint8_t var_battery_voltage_threshold_min;
 
-  uint8_t var_battery_current_graph_auto_max_min;
-  uint8_t var_battery_current_graph_max;
-  uint8_t var_battery_current_graph_min;
-  uint8_t var_battery_current_auto_thresholds;
-  uint8_t var_battery_current_threshold_max;
-  uint8_t var_battery_current_threshold_min;
+	uint8_t var_battery_current_graph_auto_max_min;
+	uint8_t var_battery_current_graph_max;
+	uint8_t var_battery_current_graph_min;
+	uint8_t var_battery_current_auto_thresholds;
+	uint8_t var_battery_current_threshold_max;
+	uint8_t var_battery_current_threshold_min;
 
-  uint8_t var_battery_soc_graph_auto_max_min;
-  uint8_t var_battery_soc_graph_max;
-  uint8_t var_battery_soc_graph_min;
-  uint8_t var_battery_soc_auto_thresholds;
-  uint8_t var_battery_soc_threshold_max;
-  uint8_t var_battery_soc_threshold_min;
+	uint8_t var_battery_soc_graph_auto_max_min;
+	uint8_t var_battery_soc_graph_max;
+	uint8_t var_battery_soc_graph_min;
+	uint8_t var_battery_soc_auto_thresholds;
+	uint8_t var_battery_soc_threshold_max;
+	uint8_t var_battery_soc_threshold_min;
 
-  uint8_t var_motor_temp_graph_auto_max_min;
-  uint8_t var_motor_temp_graph_max;
-  uint8_t var_motor_temp_graph_min;
-  uint8_t var_motor_temp_auto_thresholds;
-  uint8_t var_motor_temp_threshold_max;
-  uint8_t var_motor_temp_threshold_min;
+	uint8_t var_motor_temp_graph_auto_max_min;
+	uint8_t var_motor_temp_graph_max;
+	uint8_t var_motor_temp_graph_min;
+	uint8_t var_motor_temp_auto_thresholds;
+	uint8_t var_motor_temp_threshold_max;
+	uint8_t var_motor_temp_threshold_min;
 
-  uint8_t var_motor_erps_graph_auto_max_min;
-  uint8_t var_motor_erps_graph_max;
-  uint8_t var_motor_erps_graph_min;
-  uint8_t var_motor_erps_auto_thresholds;
-  uint8_t var_motor_erps_threshold_max;
-  uint8_t var_motor_erps_threshold_min;
+	uint8_t var_motor_erps_graph_auto_max_min;
+	uint8_t var_motor_erps_graph_max;
+	uint8_t var_motor_erps_graph_min;
+	uint8_t var_motor_erps_auto_thresholds;
+	uint8_t var_motor_erps_threshold_max;
+	uint8_t var_motor_erps_threshold_min;
 
-  uint8_t var_motor_pwm_graph_auto_max_min;
-  uint8_t var_motor_pwm_graph_max;
-  uint8_t var_motor_pwm_graph_min;
-  uint8_t var_motor_pwm_auto_thresholds;
-  uint8_t var_motor_pwm_threshold_max;
-  uint8_t var_motor_pwm_threshold_min;
+	uint8_t var_motor_pwm_graph_auto_max_min;
+	uint8_t var_motor_pwm_graph_max;
+	uint8_t var_motor_pwm_graph_min;
+	uint8_t var_motor_pwm_auto_thresholds;
+	uint8_t var_motor_pwm_threshold_max;
+	uint8_t var_motor_pwm_threshold_min;
 
-  uint8_t var_motor_foc_graph_auto_max_min;
-  uint8_t var_motor_foc_graph_max;
-  uint8_t var_motor_foc_graph_min;
-  uint8_t var_motor_foc_auto_thresholds;
-  uint8_t var_motor_foc_threshold_max;
-  uint8_t var_motor_foc_threshold_min;
+	uint8_t var_motor_foc_graph_auto_max_min;
+	uint8_t var_motor_foc_graph_max;
+	uint8_t var_motor_foc_graph_min;
+	uint8_t var_motor_foc_auto_thresholds;
+	uint8_t var_motor_foc_threshold_max;
+	uint8_t var_motor_foc_threshold_min;
 
-  uint8_t ui8_pedal_cadence_fast_stop;
-  uint8_t ui8_coast_brake_adc;
-  //uint8_t ui8_adc_lights_current_offset;
-  uint16_t ui16_adc_battery_current;
-  uint8_t ui8_throttle_virtual;
-  uint8_t ui8_throttle_virtual_step;
-  uint8_t ui8_torque_sensor_filter;
-  uint8_t ui8_torque_sensor_adc_threshold;
-  uint8_t ui8_coast_brake_enable;
-  
-  uint8_t ui8_motor_acceleration_adjustment;
-  uint8_t ui8_motor_deceleration_adjustment;
-  uint8_t ui8_pedal_torque_per_10_bit_ADC_step_x100;
-  uint8_t ui8_lights_configuration;
-  uint8_t ui8_assist_whit_error_enabled;
-  uint16_t ui16_startup_boost_torque_factor;
-  uint8_t ui8_startup_boost_cadence_step;
-  uint8_t ui8_riding_mode;
-  uint16_t ui16_adc_pedal_torque_delta;
-  uint16_t ui16_adc_pedal_torque_delta_boost;
-  uint16_t ui16_adc_pedal_torque_offset;
-  uint16_t ui16_adc_pedal_torque_max;
-  uint8_t ui8_weight_on_pedal;
-  uint16_t ui16_adc_pedal_torque_calibration;
-  uint8_t ui8_pedal_torque_ADC_step_calc_x100;
-  uint8_t ui8_config_shortcut_key_enabled;
-  uint8_t ui8_motor_acceleration_time_after_braking;
-  uint8_t ui8_motor_acceleration_after_braking;
+	uint8_t ui8_pedal_cadence_fast_stop;
+	uint8_t ui8_coast_brake_adc;
+	uint16_t ui16_adc_battery_current;
+	uint8_t ui8_throttle_virtual;
+	uint8_t ui8_throttle_virtual_step;
+	uint8_t ui8_torque_sensor_filter;
+	uint8_t ui8_torque_sensor_adc_threshold;
+	uint8_t ui8_coast_brake_enable;
+	
+	uint8_t ui8_motor_acceleration_adjustment;
+	uint8_t ui8_motor_deceleration_adjustment;
+	uint8_t ui8_pedal_torque_per_10_bit_ADC_step_x100;
+	uint8_t ui8_lights_configuration;
+	uint8_t ui8_assist_whit_error_enabled;
+	uint16_t ui16_startup_boost_torque_factor;
+	uint8_t ui8_startup_boost_cadence_step;
+	uint8_t ui8_riding_mode;
+	uint16_t ui16_adc_pedal_torque_delta;
+	uint16_t ui16_adc_pedal_torque_delta_boost;
+	uint8_t ui8_adc_pedal_torque_smooth_min;
+	uint8_t ui8_adc_pedal_torque_smooth_max;
+	uint8_t ui8_pedal_torque_ADC_step_calc_x100;
+	uint8_t ui8_config_shortcut_key_enabled;
+	uint8_t ui8_motor_acceleration_time_after_braking;
+	uint8_t ui8_motor_acceleration_after_braking;
+	uint8_t ui8_hall_calibration_mode;
+	uint8_t ui8_hall_calibration_pwm;
+	uint8_t ui8_hall_calibration_test_offset;
+	uint8_t ui8_hall_calibration_enabled;
+	uint16_t hall_counter[6];
+	uint8_t ui8_hall_ref_angles[6];
+	uint8_t ui8_hall_counter_offsets[6];
   
 } ui_vars_t;
 

@@ -50,47 +50,34 @@ static Field motorMenus[] =
 	FIELD_EDITABLE_UINT(_S("Motor acc after brake", "Acc brake"), &ui_vars.ui8_motor_acceleration_after_braking, "%", 0, 100, .div_digits = 0),
 	FIELD_EDITABLE_UINT(_S("Motor time after brake", "Acc brkTime"), &ui_vars.ui8_motor_acceleration_time_after_braking, "cycles", 0, 80, .div_digits = 0),
 	FIELD_EDITABLE_UINT(_S("Motor deceleration", "Motor dec"), &ui_vars.ui8_motor_deceleration_adjustment, "%", 0, 100, .div_digits = 0),
-	//FIELD_EDITABLE_UINT(_S("Min current ADC step", "MinADCcur"), &ui_vars.ui8_motor_current_min_adc, "amps", 0, 3), // 3 ADC steps = 0.48 amps
-	FIELD_EDITABLE_ENUM(_S("Motor fast stop", "Motor stop"), &ui_vars.ui8_pedal_cadence_fast_stop, "no", "yes"),
+	FIELD_EDITABLE_ENUM(_S("Motor fast stop brake", "Motor stop"), &ui_vars.ui8_pedal_cadence_fast_stop, "no", "yes"),
 	FIELD_EDITABLE_ENUM(_S("Field weakening", "Field weak"), &ui_vars.ui8_field_weakening, "disable", "enable"),
+	FIELD_EDITABLE_ENUM(_S("Hall Calibration", "Hall Cal Enable"), &ui_vars.ui8_hall_calibration_enabled, "disable", "enable"),
+	FIELD_EDITABLE_UINT(_S("Hall Angle 0", "HallAngle1"), &ui_vars.ui8_hall_ref_angles[0], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Angle 1", "HallAngle2"), &ui_vars.ui8_hall_ref_angles[1], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Angle 2", "HallAngle3"), &ui_vars.ui8_hall_ref_angles[2], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Angle 3", "HallAngle4"), &ui_vars.ui8_hall_ref_angles[3], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Angle 4", "HallAngle5"), &ui_vars.ui8_hall_ref_angles[4], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Angle 5", "HallAngle6"), &ui_vars.ui8_hall_ref_angles[5], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Offset 0", "HallOffset1"), &ui_vars.ui8_hall_counter_offsets[0], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Offset 1", "HallOffset2"), &ui_vars.ui8_hall_counter_offsets[1], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Offset 2", "HallOffset3"), &ui_vars.ui8_hall_counter_offsets[2], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Offset 3", "HallOffset4"), &ui_vars.ui8_hall_counter_offsets[3], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Offset 4", "HallOffset5"), &ui_vars.ui8_hall_counter_offsets[4], "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Hall Offset 5", "HallOffset6"), &ui_vars.ui8_hall_counter_offsets[5], "", 0, 255),
 	FIELD_END };
 
-#ifdef SW102
-static Field torqueSensorMenus[] =
-{
-	FIELD_EDITABLE_ENUM(_S("Assist w/o pedal", "A w/o ped"), &ui_vars.ui8_motor_assistance_startup_without_pedal_rotation, "disable", "enable"),
-	FIELD_EDITABLE_UINT(_S("Torque ADC threshold", "Torque thr"), &ui_vars.ui8_torque_sensor_adc_threshold, "", 5, 100),
-	//FIELD_EDITABLE_ENUM(_S("Coast brake", "Coast brk"), &ui_vars.ui8_coast_brake_enable, "disable", "enable"),
-	FIELD_EDITABLE_UINT(_S("Coast brake ADC", "Coast ADC"), &ui_vars.ui8_coast_brake_adc, "", 5, 50),
-	FIELD_END };
-	
-static Field torqueCalibrationMenus[] =
-{
-	FIELD_EDITABLE_ENUM(_S("Calibration", "Calibrat"), &ui_vars.ui8_torque_sensor_calibration_feature_enabled, "disable", "enable"),
-	FIELD_EDITABLE_UINT(_S("Torque adc step", "ADC step"), &ui_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100, "", 30, 80),      
-	FIELD_EDITABLE_UINT(_S("Torque adc offset", "ADCoffset"), &ui_vars.ui16_adc_pedal_torque_offset, "", 0, 250),
-	FIELD_EDITABLE_UINT(_S("Torque adc max", "ADC max"), &ui_vars.ui16_adc_pedal_torque_max, "", 0, 500),
-	FIELD_EDITABLE_UINT(_S("Weight on pedal", "Weight"), &ui_vars.ui8_weight_on_pedal, "kg", 20, 80),
-	FIELD_EDITABLE_UINT(_S("Torque adc on weight", "ADC weight"), &ui_vars.ui16_adc_pedal_torque_calibration, "", 100, 500),
-	FIELD_EDITABLE_ENUM(_S("Default weight", "Set weight"), &ui8_g_configuration_set_default_weight, "no", "yes"),
-	FIELD_END };
-#else
 static Field torqueSensorMenus[] =
 {
 	FIELD_EDITABLE_ENUM(_S("Assist w/o pedal", "A w/o ped"), &ui_vars.ui8_motor_assistance_startup_without_pedal_rotation, "disable", "enable"),
 	FIELD_EDITABLE_UINT(_S("Torque ADC threshold", "Torque thr"), &ui_vars.ui8_torque_sensor_adc_threshold, "", 5, 100),
 	FIELD_EDITABLE_ENUM(_S("Coast brake", "Coast brk"), &ui_vars.ui8_coast_brake_enable, "disable", "enable"),
 	FIELD_EDITABLE_UINT(_S("Coast brake ADC", "Coast ADC"), &ui_vars.ui8_coast_brake_adc, "", 5, 50),
-	FIELD_EDITABLE_UINT(_S("Torque filter", "Torque filt"), &ui_vars.ui8_torque_sensor_filter, "", 0, 5),
-	FIELD_EDITABLE_ENUM(_S("Calibration", "Calibrat"), &ui_vars.ui8_torque_sensor_calibration_feature_enabled, "disable", "enable"),
+	FIELD_EDITABLE_ENUM(_S("Torque smooth", "Calibrat"), &ui_vars.ui8_torque_sensor_calibration_feature_enabled, "disable", "enable"),
 	FIELD_EDITABLE_UINT(_S("Torque adc step", "ADC step"), &ui_vars.ui8_pedal_torque_per_10_bit_ADC_step_x100, "", 30, 80),      
-	FIELD_EDITABLE_UINT(_S("Torque adc offset", "ADCoffset"), &ui_vars.ui16_adc_pedal_torque_offset, "", 0, 250),
-	FIELD_EDITABLE_UINT(_S("Torque adc max", "ADC max"), &ui_vars.ui16_adc_pedal_torque_max, "", 0, 500),
-	FIELD_EDITABLE_UINT(_S("Weight on pedal", "Weight"), &ui_vars.ui8_weight_on_pedal, "kg", 20, 80),
-	FIELD_EDITABLE_UINT(_S("Torque adc on weight", "ADC weight"), &ui_vars.ui16_adc_pedal_torque_calibration, "", 100, 500),
-	FIELD_EDITABLE_ENUM(_S("Default weight", "Set weight"), &ui8_g_configuration_set_default_weight, "no", "yes"),
+	FIELD_EDITABLE_UINT(_S("Torque smooth min", "TorqueMin"), &ui_vars.ui8_adc_pedal_torque_smooth_min, "", 0, 50),
+	FIELD_EDITABLE_UINT(_S("Torque smooth max", "TorqueMax"), &ui_vars.ui8_adc_pedal_torque_smooth_max, "", 0, 50),
 	FIELD_END };
-#endif
 
 static Field powerAssistMenus[] =
 {
@@ -392,12 +379,25 @@ static Field technicalMenus[] =
 	FIELD_READONLY_UINT(_S("ADC torque sensor", "ADC torque"), &ui_vars.ui16_adc_pedal_torque_sensor, ""),
 	FIELD_READONLY_UINT(_S("ADC torque delta", "ADC delta"), &ui_vars.ui16_adc_pedal_torque_delta, ""),
 	FIELD_READONLY_UINT(_S("ADC torque boost", "ADC boost"), &ui_vars.ui16_adc_pedal_torque_delta_boost, ""),
-	FIELD_READONLY_UINT(_S("ADC torque step calc", "ADC step c"), &ui_vars.ui8_pedal_torque_ADC_step_calc_x100, ""),
 	FIELD_READONLY_UINT(_S("Pedal cadence", "Cadence"), &ui_vars.ui8_pedal_cadence, "rpm"),
 	FIELD_READONLY_UINT(_S("PWM duty-cycle", "PWM duty"), &ui_vars.ui8_duty_cycle, ""),
 	FIELD_READONLY_UINT(_S("Motor speed", "Mot speed"), &ui_vars.ui16_motor_speed_erps, ""),
 	FIELD_READONLY_UINT("Motor FOC", &ui_vars.ui8_foc_angle, ""),
 	FIELD_READONLY_UINT(_S("Hall sensors", "Hall sens"), &ui_vars.ui8_motor_hall_sensors, ""),
+	FIELD_END };
+
+static Field hallCalibration[] =
+{
+	FIELD_EDITABLE_ENUM(_S("Hall Calibration", "Hall Cal"), &ui_vars.ui8_hall_calibration_mode, "no", "PWM", "ERPS"),
+	FIELD_EDITABLE_UINT(_S("Calibration parameter", "Cal param"), &ui_vars.ui8_hall_calibration_pwm, "", 0, 255),
+	FIELD_EDITABLE_UINT(_S("Adjust advance angle", "Adv Ang"), &ui_vars.ui8_hall_calibration_test_offset, "", 0, 255),
+	FIELD_READONLY_UINT(_S("Motor speed", "Mot speed"), &ui_vars.ui16_motor_speed_erps, ""),
+	FIELD_READONLY_UINT(_S("Hall Counter 0", "Hall Cnt 1"), &ui_vars.hall_counter[0], ""),
+	FIELD_READONLY_UINT(_S("Hall Counter 1", "Hall Cnt 1"), &ui_vars.hall_counter[1], ""),
+	FIELD_READONLY_UINT(_S("Hall Counter 2", "Hall Cnt 1"), &ui_vars.hall_counter[2], ""),
+	FIELD_READONLY_UINT(_S("Hall Counter 3", "Hall Cnt 1"), &ui_vars.hall_counter[3], ""),
+	FIELD_READONLY_UINT(_S("Hall Counter 4", "Hall Cnt 1"), &ui_vars.hall_counter[4], ""),
+	FIELD_READONLY_UINT(_S("Hall Counter 5", "Hall Cnt 1"), &ui_vars.hall_counter[5], ""),
 	FIELD_END };
 
 static Field topMenus[] =
@@ -413,7 +413,7 @@ static Field topMenus[] =
 #endif
 	FIELD_SCROLLABLE(_S("Assist level", "Assist"), assistMenus),
 	FIELD_SCROLLABLE(_S("Walk assist", "Walk"), walkAssistMenus),
-	FIELD_SCROLLABLE(_S("Startup BOOST", "Star BOOST"), startupPowerMenus),
+	FIELD_SCROLLABLE(_S("Startup Boost", "Star Boost"), startupPowerMenus),
 	FIELD_SCROLLABLE(_S("Motor temperature", "Motor temp"), motorTempMenus),
 	FIELD_SCROLLABLE(_S("Street mode", "Street mod"), streetModeMenus),
 #ifndef SW102
@@ -422,6 +422,7 @@ static Field topMenus[] =
 	FIELD_SCROLLABLE("Various", variousMenus),
 	FIELD_SCROLLABLE("Display", displayMenus),
 	FIELD_SCROLLABLE("Technical", technicalMenus),
+	FIELD_SCROLLABLE("Hall Calibration", hallCalibration),
 	FIELD_END };
 
 static Field configRoot = FIELD_SCROLLABLE(_S("Configurations", "Config"), topMenus);

@@ -771,8 +771,7 @@ void screen_clock(void) {
     DisplayResetToDefaults();
     TripMemoriesReset();
 	BatterySOCReset();
-	SetDefaultWeight();
-    DisplayResetBluetoothPeers();
+	  DisplayResetBluetoothPeers();
     batteryTotalWh();
     batteryCurrent();
     batteryResistance();
@@ -1070,7 +1069,7 @@ void setWarning(ColorOp color, const char *str) {
 		strncpy(warningStr, str, sizeof(warningStr));
 }
 
-static const char *motorErrors[] = { _S("None", "None"), _S("Motor not init", "Mot no ini"), "Torque Fault", "Cadence Fault", "Motor Blocked", "Throttle Fault", "Free", "Comms", "Speed Fault"};
+static const char *motorErrors[] = { _S("None", "None"), _S("Motor not init", "Mot no ini"), "Torque Fault", "Cadence Fault", "Motor Blocked", "Throttle Fault", "Bat Overcurrent", "Comms", "Speed Fault"};
 
 void warnings(void) {
   //uint32_t motor_temp_limit = ui_vars.ui8_temperature_limit_feature_enabled & 1;
@@ -1085,6 +1084,8 @@ void warnings(void) {
     case MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK:
       setWarning(ColorWarning, _S("Motor init", "Motor init"));
       return;
+      
+    default:
   }
   
   // display riding mode
@@ -1108,7 +1109,7 @@ void warnings(void) {
     if (ui_vars.ui8_error_states & 1)
       ui8_motorErrorsIndex = 1;
     else if (ui_vars.ui8_error_states & 2)
-		ui8_motorErrorsIndex = 2;
+	  	ui8_motorErrorsIndex = 2;
     else if (ui_vars.ui8_error_states & 4)
       ui8_motorErrorsIndex = 3;
     else if (ui_vars.ui8_error_states & 8)
@@ -1420,16 +1421,6 @@ void BatterySOCReset(void) {
 			ui_vars.ui32_wh_x10_offset = (ui_vars.ui32_wh_x10_100_percent
 				* ui8_battery_soc_used[ui8_battery_soc_index]) / 100;
 		}
-	}
-}
-
-void SetDefaultWeight(void) {
-	if (ui8_g_configuration_set_default_weight) {
-		ui8_g_configuration_set_default_weight = 0;
-		
-		ui_vars.ui8_weight_on_pedal = 25; // kg
-		ui_vars.ui16_adc_pedal_torque_calibration = ui_vars.ui16_adc_pedal_torque_offset
-			+ ((ui_vars.ui16_adc_pedal_torque_max - ui_vars.ui16_adc_pedal_torque_offset) * 75) / 100;
 	}
 }
 
